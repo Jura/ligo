@@ -51,6 +51,11 @@ return array(
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
 		),
+		
+		'cache'=>array(
+				'class'=>'system.caching.CApcCache',
+		),
+		
 		// uncomment the following to enable URLs in path-format
 		
 		'urlManager'=>array(
@@ -92,9 +97,15 @@ return array(
 			'class'=>'CLogRouter',
 			'routes'=>array(
 				array(
+					'class' => 'CDbLogRoute',
+					'autoCreateLogTable' => 1,
+					'connectionID' => 'mongodb',
+					'levels' => 'error,warning',
+				),
+				/*array(
 					'class'=>'CFileLogRoute',
 					'levels'=>'error, warning',
-				),
+				),*/
 				// uncomment the following to show log messages on web pages
 				/*array(
 					'class'=>'CWebLogRoute',
