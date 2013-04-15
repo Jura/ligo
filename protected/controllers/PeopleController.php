@@ -233,7 +233,7 @@ class PeopleController extends Controller {
 			$task->status = 'active';
 			$task->save();
 			
-			try {
+			//try {
 				
 			
 				// get all bare handles
@@ -324,20 +324,20 @@ class PeopleController extends Controller {
 					
 				}
 			
-			} catch (Exception $e) {
+				$this->renderPartial('//layouts/json', array('content' => array('status' => 'OK', 'message' => 'Success')));
+				
+			/*} catch (Exception $e) {
 				
 				$this->renderPartial('//layouts/json', array('content' => array('status' => 'Failed', 'message' => 'PHP Exception raised', 'exception' => $e)));
 				array_push($task->log, Task::formatLogString('abnormal termination due to the PHP error'));
 				$task->status = 'Failed';
 				
-			}
+			}*/
 			
 			// finalize the task, regardless the result
 			array_push($task->log, Task::formatLogString('finished'));
 			$task->finish = Task::getTimestamp();
 			$task->save();
-			
-			$this->renderPartial('//layouts/json', array('content' => array('status' => 'OK', 'message' => 'Success')));
 			
 		} else {
 			
