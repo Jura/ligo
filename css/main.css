@@ -1,0 +1,20 @@
+.link {
+	stroke: rgba(200,200,200,0.5);
+}
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}
+.graph-unknown-handle {
+	fill: rgba(85,85,85,0.7);
+	stroke: rgba(255,255,255,1);
+	stroke-width: 3px;
+}
+.graph-group-handle {
+	stroke: rgba(255,0,0,0.7);
+	stroke-width: 3px;
+}
+.graph-ext-handle {
+	stroke: rgba(255,255,255,1);
+	stroke-width: 3px;
+}
