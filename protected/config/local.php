@@ -71,6 +71,7 @@ return array(
 				'class'            => 'EMongoDB',
 				'connectionString' => 'mongodb://db1.undp.sk/necto',
 				'dbName'           => 'necto',
+				'useCursor'        => true,
 		),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors

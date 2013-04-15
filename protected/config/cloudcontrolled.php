@@ -88,6 +88,7 @@ return array(
 				'class'            => 'EMongoDB',
 				'connectionString' => $creds['MONGOLAB']['MONGOLAB_URI'],
 				'dbName'           => substr($creds['MONGOLAB']['MONGOLAB_URI'], strrpos($creds['MONGOLAB']['MONGOLAB_URI'], '/') + 1),
+				'useCursor'        => true,
 		),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
