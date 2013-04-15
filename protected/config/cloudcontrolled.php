@@ -93,15 +93,15 @@ return array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'people/error',
 		),
-		'log'=>array(
-			'class'=>'CLogRouter',
-			'routes'=>array(
-				array(
+		//'log'=>array(
+			//'class'=>'CLogRouter',
+			//'routes'=>array(
+				/*array(
 					'class' => 'CDbLogRoute',
 					'autoCreateLogTable' => 1,
 					'connectionID' => 'mongodb',
 					'levels' => 'error,warning',
-				),
+				),*/
 				/*array(
 					'class'=>'CFileLogRoute',
 					'levels'=>'error, warning',
@@ -111,8 +111,8 @@ return array(
 					'class'=>'CWebLogRoute',
 					'showInFireBug' => true,
 				),*/
-			),
-		),
+			//),
+		//),
 	),
 
 	// application-level parameters that can be accessed

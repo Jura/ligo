@@ -30,7 +30,7 @@ function renderGraph(group) {
 	if ($('body svg').size() < 1) {
 		var width = $(window).width(),height = $(window).height();
 		svg = d3.select('body').append('svg').attr("width", width).attr("height", height);
-		force = d3.layout.force().linkDistance(200).charge(-2000).gravity(0.1).size([width, height]);
+		force = d3.layout.force().linkDistance(200).charge(-2000).gravity(1).size([width, height]);
 	} else {
 		$('body svg').empty();
 	}

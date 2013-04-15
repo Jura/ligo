@@ -233,7 +233,7 @@ class PeopleController extends Controller {
 			$task->status = 'active';
 			$task->save();
 			
-			//try {
+			try {
 				
 			
 				// get all bare handles
@@ -326,13 +326,25 @@ class PeopleController extends Controller {
 			
 				$this->renderPartial('//layouts/json', array('content' => array('status' => 'OK', 'message' => 'Success')));
 				
-			/*} catch (Exception $e) {
+			} catch (Exception $e) {
 				
-				$this->renderPartial('//layouts/json', array('content' => array('status' => 'Failed', 'message' => 'PHP Exception raised', 'exception' => $e)));
-				array_push($task->log, Task::formatLogString('abnormal termination due to the PHP error'));
+				$this->renderPartial('//layouts/json', array(
+					'content' => array(
+						'status' => 'Failed', 
+						'message' => 'PHP Exception raised', 
+						'exception' => array(
+							'message' => $e->getMessage(), 
+							'trace' => $e->getTrace(),
+							'code' => $e->getCode(),
+							'file' => $e->getFile(),
+							'line' => $e->getLine(),
+						)
+					)
+				));
+				array_push($task->log, Task::formatLogString('abnormal termination due to the PHP error: ' . $e->getMessage()));
 				$task->status = 'Failed';
 				
-			}*/
+			}
 			
 			// finalize the task, regardless the result
 			array_push($task->log, Task::formatLogString('finished'));
