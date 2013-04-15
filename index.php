@@ -1,8 +1,8 @@
 <?php
 
-if ( in_array($_ENV('SERVER_ADDR'), array('::1', '127.0.0.1')) ) {
+if (in_array(getenv('SERVER_ADDR'), array('::1', '127.0.0.1')) ) {
 	// change the following paths if necessary
-	$yii=dirname(__FILE__).'/../../programmes/yii/framework/yii.php';
+	$yii=dirname(__FILE__).'/../../../programmes/yii/framework/yii.php';
 	$config=dirname(__FILE__).'/protected/config/local.php';
 	
 	// remove the following lines when in production mode
