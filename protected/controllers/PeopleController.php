@@ -138,7 +138,7 @@ class PeopleController extends Controller {
 		//$pops = array_count_values($popularity);
 		
 		$options = array(
-			'max' => max($popularity),
+			'max' => (count($popularity) > 0) ? max($popularity) : 0,
 			'min' => $minPopularity,
 			/*'popularity' => array(
 				'size' => array_keys($pops), 
