@@ -86,7 +86,7 @@ return array(
 		*/
 		'mongodb' => array(
 				'class'            => 'EMongoDB',
-				'connectionString' => $creds['MONGOlAB']['MONGOLAB_URI'],
+				'connectionString' => $creds['MONGOLAB']['MONGOLAB_URI'],
 				//'dbName'           => 'ligo',
 		),
 		'errorHandler'=>array(
