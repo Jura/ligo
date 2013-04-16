@@ -307,9 +307,23 @@ class PeopleController extends Controller {
 							
 						} else {
 							
-							array_push($task->log, Task::formatLogString('Twitter API error: ' . $result['message']));
 							$task->status = 'Finished with errrors';
-							break;
+							
+							// try to clean up database from dead souls (suspended or deleted users), one record at a time
+							if ($result['response']->httpstatus == 403 || $result['response']->httpstatus == 404) {
+								
+								$doc = People::model()->findByAttributes(array('twitter_id' => $bulk[0]));
+								$doc->delete();
+								
+								array_push($task->log, Task::formatLogString('ID: ' . $bulk[0] . ' has been removed from database since its returned API error: ' . $result['message']));
+								
+								
+							} else {
+								
+								array_push($task->log, Task::formatLogString('Twitter API error: ' . $result['message']));
+								break;
+								
+							}							
 							
 						}
 						
