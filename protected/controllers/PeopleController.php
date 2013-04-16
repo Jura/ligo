@@ -240,12 +240,13 @@ class PeopleController extends Controller {
 				$params = array(
 					'conditions' => array(
 						'handle' => array('notexists')	
-					)
+					),
+					'limit' => 500, // limit records to process to avoid cursor timeouts
 				);
 				$criteria = new EMongoCriteria($params);
 				$handles = People::model()->findAll($criteria);
 				
-				if (count($handles) > 0) {
+				if ($handles->count() > 0) {
 					
 					$user_id = array();
 					

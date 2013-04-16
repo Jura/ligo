@@ -67,10 +67,16 @@ return array(
 			'charset' => 'utf8',
 		),
 		*/
-		'mongodb' => array(
+		/*'mongodb' => array(
 				'class'            => 'EMongoDB',
 				'connectionString' => 'mongodb://db1.undp.sk/necto',
 				'dbName'           => 'necto',
+				'useCursor'        => true,
+		),*/
+		'mongodb' => array(
+				'class'            => 'EMongoDB',
+				'connectionString' => 'mongodb://cloudcontrol_depmft8dvdk:fudc84b9i4h1f80ah9cp6cg784@ds039447.mongolab.com:39447/cloudcontrol_depmft8dvdk',
+				'dbName'           => 'cloudcontrol_depmft8dvdk',
 				'useCursor'        => true,
 		),
 		'errorHandler'=>array(

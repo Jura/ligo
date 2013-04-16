@@ -16,6 +16,7 @@ class CCodebird extends CApplicationComponent {
 	);
 	
 	public function getCodebird() {
+		Yii::trace(get_class($this).'.getCodebird()','ext.codebird');
 		if (self::$_cb == NULL) {
 			Codebird::setConsumerKey(self::$_config["consumerkey"], self::$_config["consumersecret"]);
 			if (self::$_config["appauth"]) {
@@ -27,6 +28,7 @@ class CCodebird extends CApplicationComponent {
 	}
 	
 	public function getMultipleUserInfo($ids) {
+		Yii::trace(get_class($this).'.getMultipleUserInfo()','ext.codebird');
 		
 		$result = array('success' => false, 'message' => 'Unknown error');
 		
@@ -34,6 +36,7 @@ class CCodebird extends CApplicationComponent {
 		
 		$user_ids = implode(',', $ids);
 		
+		Yii::trace(get_class($this).'.findAll()','ext.codebird');
 		$userinfo = $cb->users_lookup(array("user_id" => $user_ids, "include_entities" => false), self::$_config["appauth"]);
 		
 		if ($userinfo->httpstatus == 200) {
@@ -54,6 +57,8 @@ class CCodebird extends CApplicationComponent {
 	}
 	
 	public function getHandleInfo($handle, $findFriends = true) {
+		
+		Yii::trace(get_class($this).'.getHandleInfo()','ext.codebird');
 	
 		$result = array('handle' => $handle, 'success' => false, 'message' => 'Unknown error', 'userinfo' => array());
 		
