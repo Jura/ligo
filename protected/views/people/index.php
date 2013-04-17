@@ -35,7 +35,10 @@ function renderGraph(group) {
 		$('body svg').empty();
 	}
 
-	var data = (group && group != '') ? {'group': group} : null;
+	var data = {'maxnodes': 100};
+     if (group && group != '') {
+         data.group = group;
+    }
 	
 	$.getJSON('<?php echo $this->createUrl('people/getNodesAndLinks'); ?>?callback=?', data).done( function(data) {
 

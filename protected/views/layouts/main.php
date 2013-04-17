@@ -4,6 +4,7 @@
   <head>
     <title><?php echo CHtml::encode($this->pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <?php echo CHtml::cssFile(Yii::app()->request->baseUrl.'/css/bootstrap.min.css'); ?>
     
     <?php //echo CHtml::cssFile(Yii::app()->request->baseUrl.'/css/bootstrap-responsive.min.css'); ?>
@@ -18,6 +19,6 @@
 	
 	</head>
   <body>
-	  <?php echo $content; ?>	  
+	  <?php echo $content; ?>
   </body>
 </html>
