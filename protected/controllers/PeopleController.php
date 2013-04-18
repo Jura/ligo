@@ -5,9 +5,9 @@ class PeopleController extends Controller {
 	// default group
 	protected static $_group = 'UNDP';
 	
-	public function actionIndex($group='') {
+	public function actionIndex($group = '', $maxnodes = 100) {
 				
-		$this->render('index', compact('group'));
+		$this->render('index', compact('group', 'maxnodes'));
 		
 	}
 	
@@ -21,19 +21,18 @@ class PeopleController extends Controller {
 		$links = array();
 		
 		$criteria = new EMongoCriteria;
-		$criteria->groups('==', new MongoRegex('/' . $group . '/i'))->select(array('twitter_id', 'handle', 'groups', 'timestamp', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));//
+		$criteria->groups('==', new MongoRegex('/' . $group . '/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));//
 		$handles = People::model()->findAll($criteria);
 		
 		$track = array();
-		
-		// include only full profiles and friends which appear more than once
+
+		// combine all friends together
 		$allfriends = array();
 		foreach ($handles as $handle) {
-			//if (is_array($handle->userinfo['friends_list'])) {
-				$allfriends = array_merge($allfriends, $handle->userinfo['friends_list']);
-			//}			
+			$allfriends = array_merge($allfriends, $handle->userinfo['friends_list']);
 		}
-		
+
+        // create initial popularity rating
 		$popularity = array_count_values($allfriends);
 		
 		$allmembers = array();
@@ -46,28 +45,25 @@ class PeopleController extends Controller {
 			array_push($allmembers, $handle->twitter_id);
 		}
 		
-		// find unresolved handles
-		$unresolved = array_diff($allfriends, $allmembers);
-		
-		// reduce amount of nodes/links to display, threshold is 
-		if (count($unresolved) + count($allmembers) > $maxnodes) {
-			arsort($popularity, SORT_NUMERIC);
-			$threshold = array_slice($popularity, $maxnodes - 1, 1);
-			$minPopularity = $threshold[0];
-		}
-		//$minPopularity = 3;
+		// reduce amount of nodes/links to display
+        arsort($popularity, SORT_NUMERIC);
+        $popular = array_slice($popularity, 0, $maxnodes, true);
+        $options = array(
+            'max' => (count($popular) > 0) ? max($popular) : 0,
+            'min' => (count($popular) > 0) ? min($popular) : 0,
+        );
 
-		$params = array(
+        // find unresolved handles
+        $unresolved = array_diff(array_keys($popular), $allmembers);
+
+        $params = array(
 			'conditions' => array(
 				'userinfo' => array('exists'),
-				'twitter_id' => array('in' => $unresolved)
+				'twitter_id' => array('in' => $unresolved),
 			),
-			'select' => array('twitter_id', 'handle', 'groups', 'timestamp','userinfo.profile_image_url_https')
+			'select' => array('twitter_id', 'handle', 'groups','userinfo.profile_image_url_https'),
 		);
 		$criteria = new EMongoCriteria($params);
-		/*$criteria->userinfo = 'exists';
-		$criteria->twitter_id('in', $unresolved);
-		$criteria->select();*/
 		$dbpool = People::model()->findAll($criteria);
 		
 		$pool = array();
@@ -76,77 +72,69 @@ class PeopleController extends Controller {
 				'id' => (string)$h->twitter_id,
 				'handle' => $h->handle,
 				'image' => $h->userinfo['profile_image_url_https'],
-				'size' => $popularity[$h->twitter_id],
+				'size' => $popular[$h->twitter_id],
 				'group' => false,			
 			);
 		}
 		
 		foreach ($handles as $handle) {
-			
-			if (isset($track[$handle->twitter_id])) {
-				$target = $track[$handle->twitter_id];
-				if (!isset($nodes[$target]['handle'])) {
-					$nodes[$target]['handle'] = $handle->handle;
-					$nodes[$target]['image'] = $handle->userinfo['profile_image_url_https'];
-					$nodes[$target]['group'] = true;
-				}
-			} else {
-				$target = array_push($nodes, array(
-					'id' => (string)$handle->twitter_id,
-					'handle' => $handle->handle,
-					'image' => $handle->userinfo['profile_image_url_https'],
-					'size' => $popularity[$handle->twitter_id],
-					'group' => true,
-				)) - 1;
-				$track[$handle->twitter_id] = $target;
-			}
 
-			//if (isset($handle->userinfo['friends_list']) && is_array($handle->userinfo['friends_list']) && count($handle->userinfo['friends_list']) > 0) {
-				foreach ($handle->userinfo['friends_list'] as $friend) {
-					
-					//if ($popularity[$friend] >= $minPopularity) {
-						
-						if (isset($track[$friend])) {
-							array_push($links, array(
-								'target' => $target,
-								'source' => $track[$friend]
-							));
-						} elseif ($popularity[$friend] >= $minPopularity) {//
-							if (isset($pool[$friend])) {
-								$source = array_push($nodes, $pool[$friend])-1;
-							} else {
-								$source = array_push($nodes, array('id' => (string)$friend, 'size' => $popularity[$friend], 'group' => false ))-1;
-							}						
-							$track[$friend] = $source;
-							array_push($links, array(
-								'target' => $target,
-								'source' => $track[$friend]
-							));
-						}
-		
-						/*array_push($links, array(
-							'target' => $target,
-							'source' => $source
-						));*/
-						
-					//}				
-					
-				}
-			//}
+            if (isset($popular[$handle->twitter_id] )) {
+                if (isset($track[$handle->twitter_id])) {
+                    $target = $track[$handle->twitter_id];
+                    if (!isset($nodes[$target]['handle'])) {
+                        $nodes[$target]['handle'] = $handle->handle;
+                        $nodes[$target]['image'] = $handle->userinfo['profile_image_url_https'];
+                        $nodes[$target]['group'] = true;
+                    }
+                } else {
+                    $target = array_push($nodes, array(
+                        'id' => (string)$handle->twitter_id,
+                        'handle' => $handle->handle,
+                        'image' => $handle->userinfo['profile_image_url_https'],
+                        'size' => $popularity[$handle->twitter_id],
+                        'group' => true,
+                    )) - 1;
+                    $track[$handle->twitter_id] = $target;
+                }
+            } else {
+                $target = -1;
+            }
+
+            foreach ($handle->userinfo['friends_list'] as $friend) {
+
+                if (isset($popular[$friend])) {
+
+                    if (!isset($track[$friend])) {
+                        $track[$friend] = (isset($pool[$friend])) ?
+                            $track[$friend] = array_push($nodes, $pool[$friend])-1 :
+                                array_push($nodes, array('id' => (string)$friend, 'size' => $popular[$friend], 'group' => false ))-1;
+                    }
+                    /*if (isset($pool[$friend])) {
+                        $track[$friend] = array_push($nodes, $pool[$friend])-1;
+                    } else {
+                        $track[$friend] = array_push($nodes, array('id' => (string)$friend, 'size' => $popular[$friend], 'group' => false ))-1;
+                    }*/
+
+                    if ($target >= 0 && isset($track[$friend])) {
+                        array_push($links, array(
+                            'target' => $target,
+                            'source' => $track[$friend]
+                        ));
+                    }
+
+                }
+
+            }
 		}
 		
-		//$pops = array_count_values($popularity);
-		
-		$options = array(
+
+		/*$options = array(
 			'max' => (count($popularity) > 0) ? max($popularity) : 0,
 			'min' => $minPopularity,
-			/*'popularity' => array(
-				'size' => array_keys($pops), 
-				'amount' => array_values($pops)
-			),*/
-		);
+		);*/
 		
-		$this->renderPartial('//layouts/json', array('content' => compact('nodes','links','options')));//array('nodes' => $nodes, 'links' => $links)
+		$this->renderPartial('//layouts/json', array('content' => compact('nodes','links','options')));
 	}
 	
 	public function actionSuggest($handle = '', $group = '') {
