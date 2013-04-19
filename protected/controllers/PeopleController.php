@@ -51,7 +51,15 @@ class PeopleController extends Controller {
         $options = array(
             'max' => (count($popular) > 0) ? max($popular) : 0,
             'min' => (count($popular) > 0) ? min($popular) : 0,
+            'members' => count($allmembers),
+            'friends' => count($allfriends),
+            'group' => $group,
+            'maxnodes' => $maxnodes,
+            //'top' => array(),
         );
+
+        // set minimal amount of followers to be in top 10
+       // $threshold =  current(array_slice($popular, 9, 1))-1;
 
         // find unresolved handles
         $unresolved = array_diff(array_keys($popular), $allmembers);
@@ -92,11 +100,20 @@ class PeopleController extends Controller {
                         'id' => (string)$handle->twitter_id,
                         'handle' => $handle->handle,
                         'image' => $handle->userinfo['profile_image_url_https'],
-                        'size' => $popularity[$handle->twitter_id],
+                        'size' => $popular[$handle->twitter_id],
                         'group' => true,
                     )) - 1;
                     $track[$handle->twitter_id] = $target;
                 }
+
+                // populate top list
+                /*if ($popular[$handle->twitter_id] > $threshold) {
+                    if (!isset($options['top'][$popular[$handle->twitter_id]])) {
+                        $options['top'][$popular[$handle->twitter_id]] = (array) $target;
+                    } else if (!in_array($track[$handle->twitter_id], $options['top'][$popular[$handle->twitter_id]])){
+                        array_push($options['top'][$popular[$handle->twitter_id]], $target);
+                    }
+                }*/
             } else {
                 $target = -1;
             }
@@ -115,25 +132,29 @@ class PeopleController extends Controller {
                     } else {
                         $track[$friend] = array_push($nodes, array('id' => (string)$friend, 'size' => $popular[$friend], 'group' => false ))-1;
                     }*/
-
-                    if ($target >= 0 && isset($track[$friend])) {
+                    // insert link
+                    if ($target >= 0) { //&& isset($track[$friend])
                         array_push($links, array(
                             'target' => $target,
                             'source' => $track[$friend]
                         ));
                     }
 
+                    // populate toplist
+                    /*if ($popular[$friend] > $threshold) {
+                        if (!isset($options['top'][$popular[$friend]])) {
+                            $options['top'][$popular[$friend]] = (array) $track[$friend];
+                        } else if (!in_array($track[$friend], $options['top'][$popular[$friend]])) {
+                            array_push($options['top'][$popular[$friend]], $track[$friend]);
+                        }
+                    }*/
+
                 }
 
             }
 		}
-		
 
-		/*$options = array(
-			'max' => (count($popularity) > 0) ? max($popularity) : 0,
-			'min' => $minPopularity,
-		);*/
-		
+        //krsort($options['top'], SORT_NUMERIC);
 		$this->renderPartial('//layouts/json', array('content' => compact('nodes','links','options')));
 	}
 	

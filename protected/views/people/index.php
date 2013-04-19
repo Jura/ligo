@@ -1,5 +1,4 @@
 <?php
-/* @var $this SiteController */
 
 $this->pageTitle=Yii::app()->name;
 
@@ -7,11 +6,10 @@ $this->pageTitle=Yii::app()->name;
 
 <div class="row-fluid">
     <div class="span8">
-        <h1>Graph</h1>
-        <div id="toplist"></div>
+        <div id="graph"></div>
     </div>
     <div class="span4">
-        <h1>Stats</h1>
+        <div id="toplist"></ul>
     </div>
 </div>
 <!-- 
@@ -21,84 +19,52 @@ $this->pageTitle=Yii::app()->name;
 	<button type="submit" class="btn">Submit</button>
 </form>
  -->
-<script>
+<?php
 
-var force,svg;
+$api_endpoint = Yii::app()->request->baseUrl;
 
-function getSize(current, min, max) {
-	var minsize = 8, range = 64;
-	var size = Math.round(((current - min) * range/(max - min))) + minsize;
-	// if the node is out of min/max range - use zero based scale
-	if (size < minsize) {
-		size = Math.round(current*range/max);
-	}
-	return size;
-}
+// avoid using $ for jQuery to prevent parsing them as PHP variables
+$script = <<<EOT
+    var _graph = jQuery('#graph');
+    // set container's height
+    _graph.height(jQuery(window).height() - _graph.offset().top - _graph.offset().left);
 
-function renderGraph(group) {
-    var $toplist = $('#toplist');
-	
-	if ($toplist.find('svg').size() > 0) {
-        $toplist.find('svg').empty();
-    } else {
-        $toplist.height($(window).height() - $toplist.offset().top - $toplist.offset().left);
-        var width = $toplist.width(), height = $toplist.height();
-        svg = d3.select('#toplist').append('svg').attr("width", width).attr("height", height);
-        force = d3.layout.force().linkDistance(200).charge(-2000).gravity(1).size([width, height]);
-    }
+    var options = {
+        'api_endpoint': '$api_endpoint',
+        'group': '$group',
+        'maxnodes': '$maxnodes'
+    };
 
-	var data = {'maxnodes': <?php echo $maxnodes; ?>};
-     if (group && group != '') {
-         data.group = group;
-    }
-	
-	$.getJSON('<?php echo $this->createUrl('people/getNodesAndLinks'); ?>?callback=?', data).done( function(data) {
+    ligo.init(options).renderStats('#toplist').renderGraph('#graph');
 
-		force.nodes(data.nodes).links(data.links).start();
+EOT;
 
-		var link = svg.selectAll(".link").data(data.links).enter().append("line").attr("class", "link");
-	  	var node = svg.selectAll(".node").data(data.nodes).enter().append("g").attr("class", "node").call(force.drag);
+Yii::app()->clientScript->registerScript('ligoinit', $script, CClientScript::POS_READY);
 
-		node.each(function(d, i) {
-			var _this = d3.select(this);
-			var _groupclass = (data.nodes[i].group) ? 'group' : 'ext';
-			var size = getSize(data.nodes[i].size, data.options.min, data.options.max);
-			if (data.nodes[i].image) {
-                _this.append('svg:defs')
-                    .append('svg:pattern').attr('id', 'pattern-' + i).attr('patternUnits','objectBoundingBox').attr('width', 1).attr('height', 1)//userSpaceOnUse
-                    .append('svg:image').attr('xlink:href', data.nodes[i].image).attr('x', 0).attr('y', 0).attr('width', size).attr('height', size);
-                _this.append("svg:circle").attr("r", size/2).attr('fill', 'url(#pattern-' + i + ')').classed('graph-' + _groupclass + '-handle', true);
-				_this.append('title').text(data.nodes[i].handle + ': ' + data.nodes[i].size + ' followers');
-			} else {
-				_this.append("svg:circle").attr("r", size/2).classed('graph-unknown-handle', true);
-				_this.append('title').text(data.nodes[i].size + ' followers');
-			}
-							
-		});
 
-	  	force.on("tick", function() {
-		    link.attr("x1", function(d) { return d.source.x; })
-		        .attr("y1", function(d) { return d.source.y; })
-		        .attr("x2", function(d) { return d.target.x; })
-		        .attr("y2", function(d) { return d.target.y; });
+/*var $top = $('#toplist');
+ var ordered = Object.keys(data.options.top).sort(function(a,b){return parseInt(b)-parseInt(a)});
+ for (var i = 0; i < ordered.length; i++) {
+ var $div = $top.append('<h2>' + ordered[i] + ' followers</h2>').after('<div></div>'), source;
+ for (var j = 0; j < data.options.top[ordered[i]].length; j++) {
+ source = data.nodes[data.options.top[ordered[i]][j]];
+ $node = (source.image) ? $('<a href="http://twitter.com/' + source.handle + '"><img src="' + source.image + '" title="@' + source.handle + '" class="img-rounded"></a>') : source.handle ;
+ $div.append($node);
+ }
+ if ($top.find('li').size() > 9) {
+ break;
+ }
+ }*/
+/*$.each(data.options.top, function(key) {
+ var $div = $top.append('<h2>' + key + ' followers</h2>').after('<div></div>'), source;
+ for (var i = 0; i < data.options.top[key].length; i++) {
+ source = data.nodes[data.options.top[key][i]];
+ $node = (source.image) ? $('<a href="http://twitter.com/' + source.handle + '"><img src="' + source.image + '" title="@' + source.handle + '" class="img-rounded"></a>') : source.handle ;
+ $div.append($node);
+ }
+ if ($top.find('li').size() > 9) {
+ return false;
+ }
+ });*/
 
-		    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-	  	});	
-	});
-	
-}
-
-$(function(){
-
-	renderGraph('<?php echo $group; ?>');
-	
-	$('#people-suggest-form').submit(function(e) {
-		e.preventDefault();
-		$.getJSON($(this).prop('action'), {'handle': $('#handle').val(), 'group': $('#group').val()}).done(function(data) {
-			console.log(data);
-			renderGraph('<?php echo $group; ?>');	
-		});
-		return false;
-	});
-});
-</script>
+?>

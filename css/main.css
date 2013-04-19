@@ -16,8 +16,10 @@
 .graph-group-handle {
 	stroke: rgba(255,0,0,0.7);
 	stroke-width: 3px;
+    cursor: pointer;
 }
 .graph-ext-handle {
 	stroke: rgba(255,255,255,1);
 	stroke-width: 3px;
+    cursor: pointer;
 }

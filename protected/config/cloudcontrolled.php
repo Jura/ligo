@@ -55,10 +55,20 @@ return array(
 		'cache'=>array(
 				'class'=>'system.caching.CApcCache',
 		),
-		
-		// uncomment the following to enable URLs in path-format
-		
-		'urlManager'=>array(
+
+        'clientScript' => array(
+            'coreScriptPosition' => CClientScript::POS_END,
+            'defaultScriptFilePosition' => CClientScript::POS_END,
+            'defaultScriptPosition' => CClientScript::POS_END,
+            'packages' => array(
+                'd3' => array(
+                    'js' => array(YII_DEBUG ? 'd3.v3.js' : 'd3.v3.min.js'),
+                    'baseUrl' => 'js',
+                ),
+            ),
+        ),
+
+        'urlManager'=>array(
 			'urlFormat'=>'path',
 			'showScriptName'=>false,
 			'rules'=>array(
