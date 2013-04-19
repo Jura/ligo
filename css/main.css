@@ -23,3 +23,7 @@
 	stroke-width: 3px;
     cursor: pointer;
 }
+.graph-legend {
+    fill: rgba(85,85,85,0.7);
+    opacity: 0.5;
+}

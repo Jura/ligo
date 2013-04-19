@@ -9,7 +9,7 @@ $this->pageTitle=Yii::app()->name;
         <div id="graph"></div>
     </div>
     <div class="span4">
-        <div id="toplist"></ul>
+        <div id="toplist"></div>
     </div>
 </div>
 <!-- 
@@ -40,31 +40,5 @@ $script = <<<EOT
 EOT;
 
 Yii::app()->clientScript->registerScript('ligoinit', $script, CClientScript::POS_READY);
-
-
-/*var $top = $('#toplist');
- var ordered = Object.keys(data.options.top).sort(function(a,b){return parseInt(b)-parseInt(a)});
- for (var i = 0; i < ordered.length; i++) {
- var $div = $top.append('<h2>' + ordered[i] + ' followers</h2>').after('<div></div>'), source;
- for (var j = 0; j < data.options.top[ordered[i]].length; j++) {
- source = data.nodes[data.options.top[ordered[i]][j]];
- $node = (source.image) ? $('<a href="http://twitter.com/' + source.handle + '"><img src="' + source.image + '" title="@' + source.handle + '" class="img-rounded"></a>') : source.handle ;
- $div.append($node);
- }
- if ($top.find('li').size() > 9) {
- break;
- }
- }*/
-/*$.each(data.options.top, function(key) {
- var $div = $top.append('<h2>' + key + ' followers</h2>').after('<div></div>'), source;
- for (var i = 0; i < data.options.top[key].length; i++) {
- source = data.nodes[data.options.top[key][i]];
- $node = (source.image) ? $('<a href="http://twitter.com/' + source.handle + '"><img src="' + source.image + '" title="@' + source.handle + '" class="img-rounded"></a>') : source.handle ;
- $div.append($node);
- }
- if ($top.find('li').size() > 9) {
- return false;
- }
- });*/
 
 ?>
