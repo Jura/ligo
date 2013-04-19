@@ -89,11 +89,11 @@
             var node = svg.selectAll(".node").data(data.nodes).enter().append("g").attr("class", "node").call(force.drag);
 
             // add legend
-            svg.append('svg:rect').attr('rx', 16).attr('ry', 16).attr('y', 16).attr('width', 300).attr('height', 60).classed('graph-legend', true);
+            svg.append('svg:rect').attr('rx', 16).attr('ry', 16).attr('y', 16).attr('width', 200).attr('height', 60).classed('graph-legend', true);
             svg.append('svg:circle').attr('r', 8).attr('cx', 16).attr('cy', 32).classed('graph-group-handle', true).style('cursor', 'default');
             svg.append('svg:text').attr('x', 30).attr('y', 36).text(' - members of the group');
             svg.append('svg:circle').attr('r', 8).attr('cx', 16).attr('cy', 56).classed('graph-unknown-handle', true);
-            svg.append('svg:text').attr('x', 30).attr('y', 62).text('- Twitter handles outside of the group');
+            svg.append('svg:text').attr('x', 30).attr('y', 62).text('- external handles');
 
             node.each(function(d, i) {
                 var _this = d3.select(this);

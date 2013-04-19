@@ -47,10 +47,10 @@ return array(
 
 	// application components
 	'components'=>array(
-		'user'=>array(
+		/*'user'=>array(
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
-		),
+		),*/
 		
 		'cache'=>array(
 				'class'=>'system.caching.CApcCache',
