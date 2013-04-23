@@ -23,19 +23,17 @@ $this->pageTitle=Yii::app()->name;
 
 $api_endpoint = Yii::app()->request->baseUrl;
 
-// avoid using $ for jQuery to prevent parsing them as PHP variables
 $script = <<<EOT
 
-    var stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.right = stats.domElement.style.bottom = '20px';
-    $('body').append(stats.domElement);
-    stats.begin();
-    setInterval(function(){ stats.update(); }, 1000 / 60);
+    /*var _stats = new Stats();
+    _stats.domElement.style.position = 'absolute';
+    _stats.domElement.style.right = _stats.domElement.style.bottom = '20px';
+    $('body').append(_stats.domElement);*/
 
-    var _graph = jQuery('#graph');
+
+    var _graph = $('#graph');
     // set container's height
-    _graph.height(jQuery(window).height() - _graph.offset().top - _graph.offset().left);
+    _graph.height($(window).height() - _graph.offset().top - _graph.offset().left);
 
     var options = {
         'api_endpoint': '$api_endpoint',
@@ -45,9 +43,25 @@ $script = <<<EOT
 
     ligo.init(options).renderStats('#toplist').renderGraph('#graph');
 
+    // run performance measurement
+    setInterval(function(){
+        ligo.setFps();
+        if (ligo.fps < 10 && ligo.fps > 0) {
+            if (ligo.fps_counter < ligo.fps_max_counter) {
+                ligo.fps_counter++;
+            } else {
+                if (!ligo.fps_flag_raised){
+
+                    console.log('poor performance: ' + ligo.fps);
+                    ligo.fps_flag_raised = true;
+                }
+                ligo.fps_counter = 0;
+            }
+        }
+    }, 1000 / 60);
+
 EOT;
 
-Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/stats.min.js');
 Yii::app()->clientScript->registerScript('ligoinit', $script, CClientScript::POS_READY);
 
 ?>

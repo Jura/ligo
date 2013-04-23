@@ -4,10 +4,9 @@ Yii::app()->clientScript->registerLinkTag('shortcut icon', 'image/x-icon', 'data
 
     ->registerMetaTag('width=device-width, initial-scale=1.0', 'viewport')
 
-    ->registerCssFile(Yii::app()->request->baseUrl.'/css/bootstrap.min.css')
-    ->registerCssFile(Yii::app()->request->baseUrl.'/css/main.css')
+    ->registerCoreScript('jquery')->registerPackage('bootstrap')->registerPackage('d3')
 
-    ->registerCoreScript('jquery')->registerPackage('d3')
+    ->registerCssFile(Yii::app()->request->baseUrl.'/css/main.css')
 
     ->registerScriptFile(Yii::app()->request->baseUrl.'/js/main.js');
 

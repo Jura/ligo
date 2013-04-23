@@ -62,8 +62,14 @@ return array(
             'defaultScriptPosition' => CClientScript::POS_END,
             'packages' => array(
                 'd3' => array(
+                    'basePath' => 'application.protected.vendors.d3',
                     'js' => array(YII_DEBUG ? 'd3.v3.js' : 'd3.v3.min.js'),
-                    'baseUrl' => 'js',
+                ),
+                'bootstrap' => array(
+                    'basePath' => 'application.protected.vendors.bootstrap',
+                    'js'=>array(YII_DEBUG ? 'js/bootstrap.js' : 'js/bootstrap.min.js'),
+                    'css'=>array(YII_DEBUG ? 'css/bootstrap.css' : 'css/bootstrap.min.css'),
+                    'depends' => array('jquery'),
                 ),
             ),
         ),

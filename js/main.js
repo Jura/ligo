@@ -3,6 +3,8 @@
  * User: jura.khrapunov
  * Date: 18.4.2013
  * Time: 16:11
+ *
+ * setFps() is inspired by http://github.com/mrdoob/stats.js
  */
 
 (function( ligo, $, undefined ) {
@@ -14,7 +16,10 @@
         graph_force = null,
         graph_svg = null,
         graph_width = 100,
-        graph_height = 100;
+        graph_height = 100,
+        fps_prevTime = Date.now(),
+        fps = 0,
+        fps_frames = 0;
 
     //Public Properties
     ligo.data = null;
@@ -29,15 +34,21 @@
     ligo.d3_charge = -2000;
     ligo.d3_gravity = 1;
 
+    // performance data
+    ligo.fps = 0;
+    ligo.fps_flag_raised = false;
+    ligo.fps_counter = 0;
+    ligo.fps_max_counter = 5; // timeout on poor performance
+
 
     /**
      * Public methods
      */
 
     ligo.init = function(options){
-        for (var option in options) {
-            if (typeof ligo[option] != 'undefined') {
-                ligo[option] = options[option];
+        for (var _option in options) {
+            if (typeof ligo[_option] != 'undefined') {
+                ligo[_option] = options[_option];
             }
         }
         return this;
@@ -107,7 +118,7 @@
                         .append('svg:image').attr('xlink:href', data.nodes[i].image).attr('x', 0).attr('y', 0).attr('width', size).attr('height', size);
                     _this.append('svg:circle').attr("r", size/2).attr('fill', 'url(#pattern-' + i + ')')
                         .classed('graph-' + _groupclass + '-handle', true)
-                        .on('click', function(e){window.location.href='https://twitter.com/' + data.nodes[i].handle});
+                        .on('click', function(){window.location.href='https://twitter.com/' + data.nodes[i].handle});
                     _this.append('title').text('@' + data.nodes[i].handle + ': ' + data.nodes[i].size + ' followers (' + Math.round(data.nodes[i].size*100/data.options.members) + '%)');
                 } else {
                     _this.append('svg:circle').attr("r", size/2).classed('graph-unknown-handle', true);
@@ -166,6 +177,23 @@
         return graph_svg;
     };
 
+    ligo.setFps = function() {
+
+        var time = Date.now();
+
+        fps_frames ++;
+
+        if ( time > fps_prevTime + 1000 ) {
+
+            ligo.fps = fps = Math.round( ( fps_frames * 1000 ) / ( time - fps_prevTime ) );
+            fps_prevTime = time;
+            fps_frames = 0;
+
+        }
+
+        return this;
+
+    };
 
     /**
      * Private Methods
