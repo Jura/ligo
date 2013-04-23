@@ -4,22 +4,30 @@
  * Date: 18.4.2013
  * Time: 16:11
  *
- * setFps() is inspired by http://github.com/mrdoob/stats.js
+ * monitorFps() is inspired by http://github.com/mrdoob/stats.js
+ *
+ * dependency: jQuery, D3.js
  */
 
 (function( ligo, $, undefined ) {
 
     //Private Properties
     var inprogress = false,
-        graph_container = 'body',
+
         stats_container = 'body',
+
+        graph_container = 'body',
         graph_force = null,
         graph_svg = null,
         graph_width = 100,
         graph_height = 100,
+
+        fps_container = 'body',
         fps_prevTime = Date.now(),
         fps = 0,
-        fps_frames = 0;
+        fps_frames = 0,
+        fps_counter = 0,
+        fps_ticker = null;
 
     //Public Properties
     ligo.data = null;
@@ -36,9 +44,6 @@
 
     // performance data
     ligo.fps = 0;
-    ligo.fps_flag_raised = false;
-    ligo.fps_counter = 0;
-    ligo.fps_max_counter = 5; // timeout on poor performance
 
 
     /**
@@ -55,15 +60,16 @@
     };
 
     ligo.loadData = function () {
-        var callback = arguments[0] || null;
+        var callback = arguments[0] || null,
+            reload = arguments[1] || false;
         if (inprogress) {
-            var i = arguments[1] || 0;
+            var i = arguments[2] || 0;
             if (i < 100) {
-                setTimeout(function(){ligo.loadData(callback, i++)}, 100);
+                setTimeout(function(){ligo.loadData(callback, reload, i++)}, 100);
             } else {
                 throw 'data loading takes too long';
             }
-        } else if (ligo.data === null) {
+        } else if (ligo.data === null || reload) {
             inprogress = true;
             $.getJSON(ligo.api_endpoint + '/people/getNodesAndLinks?callback=?', {'maxnodes': ligo.maxnodes, 'group': ligo.group}).done( function(data) {
                 // get an independent clone using a deep copy
@@ -80,17 +86,19 @@
     };
 
     ligo.renderGraph = function() {
+        var container = arguments[0] || graph_container,
+            reload = arguments[1] || false;
 
         // setup container's params if the argument provided
-        if (arguments.length > 0 && arguments[0] != graph_container) {
+        if (container != graph_container || reload) {
             graph_svg = null;
-            graph_container = arguments[0];
+            graph_container = container;
             graph_width = $(graph_container).width();
             graph_height = $(graph_container).height();
         }
 
-        if (ligo.data === null) {
-            ligo.loadData(ligo.renderGraph);
+        if (ligo.data === null || reload) {
+            ligo.loadData(ligo.renderGraph, reload);
         } else {
             var force = ligo.getForce(), svg = ligo.getSvg(), data = ligo.data;
 
@@ -140,14 +148,15 @@
     };
 
     ligo.renderStats = function() {
-
+        var container = arguments[0] || stats_container,
+            reload = arguments[1] || false;
         // setup container
-        if (arguments.length > 0 && arguments[0] != stats_container) {
-            stats_container = arguments[0];
+        if (container != stats_container) {
+            stats_container = container;
         }
 
-        if (ligo.data === null) {
-            ligo.loadData(ligo.renderStats);
+        if (ligo.data === null || reload) {
+            ligo.loadData(ligo.renderStats, reload);
         } else {
             $(stats_container).empty()
                 .append('<h1>' + ligo.data.options.group + '</h1>')
@@ -177,19 +186,50 @@
         return graph_svg;
     };
 
-    ligo.setFps = function() {
+    ligo.monitorFps = function() {
+        var container = arguments[0] || fps_container;
 
-        var time = Date.now();
-
-        fps_frames ++;
-
-        if ( time > fps_prevTime + 1000 ) {
-
-            ligo.fps = fps = Math.round( ( fps_frames * 1000 ) / ( time - fps_prevTime ) );
-            fps_prevTime = time;
-            fps_frames = 0;
-
+        if (container != fps_container) {
+            fps_container = container;
         }
+
+        $(document).on('click', '#fps-action', function(){
+            clearInterval(fps_ticker);
+            ligo.maxnodes /= 2;
+            ligo.renderGraph(graph_container, true).monitorFps(fps_container);
+        });
+
+        if ($('#fps-indicator').size() < 1) {
+            $(container).html('<div>FPS: <span id="fps-indicator" class="label"></span></div>');
+        }
+
+
+        fps_ticker = setInterval(function(){
+            var time = Date.now();
+
+            fps_frames ++;
+
+            if ( time > fps_prevTime + 1000 ) {
+
+                ligo.fps = fps = Math.round( ( fps_frames * 1000 ) / ( time - fps_prevTime ) );
+                $('#fps-indicator').text(fps);
+                fps_prevTime = time;
+                fps_frames = 0;
+
+
+            }
+
+            if (fps < 5 && fps > 0) {
+                if (fps_counter < 5) {
+                    fps_counter++;
+                } else {
+                    if ($('#fps-action').size() < 1) {
+                        $(container).append('<button id="fps-action" class="btn btn-mini btn-link">Improve performance</button>');
+                    }
+                    fps_counter = 0;
+                }
+            }
+        }, 1000 / 60);
 
         return this;
 

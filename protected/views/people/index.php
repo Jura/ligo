@@ -10,6 +10,7 @@ $this->pageTitle=Yii::app()->name;
     </div>
     <div class="span4">
         <div id="toplist"></div>
+        <div id="fps"></div>
     </div>
 </div>
 <!-- 
@@ -19,17 +20,12 @@ $this->pageTitle=Yii::app()->name;
 	<button type="submit" class="btn">Submit</button>
 </form>
  -->
+
 <?php
 
 $api_endpoint = Yii::app()->request->baseUrl;
 
 $script = <<<EOT
-
-    /*var _stats = new Stats();
-    _stats.domElement.style.position = 'absolute';
-    _stats.domElement.style.right = _stats.domElement.style.bottom = '20px';
-    $('body').append(_stats.domElement);*/
-
 
     var _graph = $('#graph');
     // set container's height
@@ -41,24 +37,7 @@ $script = <<<EOT
         'maxnodes': '$maxnodes'
     };
 
-    ligo.init(options).renderStats('#toplist').renderGraph('#graph');
-
-    // run performance measurement
-    setInterval(function(){
-        ligo.setFps();
-        if (ligo.fps < 10 && ligo.fps > 0) {
-            if (ligo.fps_counter < ligo.fps_max_counter) {
-                ligo.fps_counter++;
-            } else {
-                if (!ligo.fps_flag_raised){
-
-                    console.log('poor performance: ' + ligo.fps);
-                    ligo.fps_flag_raised = true;
-                }
-                ligo.fps_counter = 0;
-            }
-        }
-    }, 1000 / 60);
+    ligo.init(options).renderStats('#toplist').renderGraph('#graph').monitorFps('#fps');
 
 EOT;
 
