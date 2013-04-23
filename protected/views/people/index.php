@@ -25,6 +25,14 @@ $api_endpoint = Yii::app()->request->baseUrl;
 
 // avoid using $ for jQuery to prevent parsing them as PHP variables
 $script = <<<EOT
+
+    var stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.right = stats.domElement.style.bottom = '20px';
+    $('body').append(stats.domElement);
+    stats.begin();
+    setInterval(function(){ stats.update(); }, 1000 / 60);
+
     var _graph = jQuery('#graph');
     // set container's height
     _graph.height(jQuery(window).height() - _graph.offset().top - _graph.offset().left);
@@ -39,6 +47,7 @@ $script = <<<EOT
 
 EOT;
 
+Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl.'/js/stats.min.js');
 Yii::app()->clientScript->registerScript('ligoinit', $script, CClientScript::POS_READY);
 
 ?>

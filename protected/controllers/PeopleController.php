@@ -21,7 +21,7 @@ class PeopleController extends Controller {
 		$links = array();
 		
 		$criteria = new EMongoCriteria;
-		$criteria->groups('==', new MongoRegex('/' . $group . '/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));//
+		$criteria->groups('==', new MongoRegex('/' . $group . '/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));
 		$handles = People::model()->findAll($criteria);
 		
 		$track = array();
