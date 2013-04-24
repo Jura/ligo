@@ -219,7 +219,7 @@
 
             }
 
-            if (fps < 5 && fps > 0) {
+            if (fps < 5 && fps > 0 && ligo.maxnodes > 10) {
                 if (fps_counter < 5) {
                     fps_counter++;
                 } else {
