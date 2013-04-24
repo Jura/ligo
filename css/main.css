@@ -1,6 +1,12 @@
 #toplist {
     overflow: hidden;
 }
+#fps {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 150px;
+}
 .link {
 	stroke: rgba(200,200,200,0.5);
 }
