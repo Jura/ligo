@@ -1,11 +1,11 @@
-#toplist {
-    overflow: hidden;
-}
 #fps {
     position: absolute;
     right: 20px;
-    bottom: 20px;
+    top: 20px;
     width: 150px;
+}
+#graph {
+    overflow: hidden;
 }
 .link {
 	stroke: rgba(200,200,200,0.5);
@@ -32,4 +32,10 @@
 .graph-legend {
     fill: rgba(85,85,85,0.7);
     opacity: 0.5;
+}
+.stats-handles {
+    overflow-y: auto;
+}
+.stats-handles-container {
+    margin-bottom: 5px;
 }

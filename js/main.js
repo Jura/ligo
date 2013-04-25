@@ -34,6 +34,7 @@
     ligo.api_endpoint = null;
     ligo.group = null;
     ligo.maxnodes = null;
+    ligo.default_image = 'https://si0.twimg.com/sticky/default_profile_images/default_profile_0_normal.png';
 
     // default setting for graph vis
     ligo.graph_node_min_size = 8;
@@ -150,6 +151,7 @@
     ligo.renderStats = function() {
         var container = arguments[0] || stats_container,
             reload = arguments[1] || false;
+
         // setup container
         if (container != stats_container) {
             stats_container = container;
@@ -160,8 +162,32 @@
         } else {
             $(stats_container).empty()
                 .append('<h1>' + ligo.data.options.group + '</h1>')
-                .append('<p>Members: ' + ligo.data.options.members + '</p>')
+                 .append('<p>Members: ' + ligo.data.options.members + '</p>')
                 .append('<p>Friends processed: ' + ligo.data.options.friends + '</p>');
+
+            var $gallery = $('<div class="stats-handles"></div>').appendTo(stats_container);
+            $gallery.css('height', $(window).height() - $gallery.offset().top - 20);
+
+            for (var i = 0; i < ligo.data.nodes.length; i++) {
+                var $div = $('#stats-size-' + ligo.data.nodes[i].size);
+
+                if ($div.length < 1) {
+                    var $divs = $('.stats-handles-container', $gallery);
+                    $div = $('<div id="stats-size-' + ligo.data.nodes[i].size + '" class="stats-handles-container"><h3>Followed by ' + ligo.data.nodes[i].size + ' members (' + Math.round(ligo.data.nodes[i].size*100/ligo.data.options.members) + '%)</h3><ul class="thumbnails"></ul></div>').data('size', ligo.data.nodes[i].size);
+                    if ($divs.length > 0 && $divs.last().data('size') < ligo.data.nodes[i].size) {
+                        $divs.each(function(j){
+                            if ($(this).data('size') < ligo.data.nodes[i].size) {
+                                $(this).before($div);
+                                return false;
+                            }
+                        });
+                    } else {
+                        $($gallery).append($div);
+                    }
+                }
+
+                $div.find('ul').append('<li><a href="http://twitter.com/' + ligo.data.nodes[i].handle + '" title="@' + ligo.data.nodes[i].handle + '" class="thumbnail"><img src="' + (ligo.data.nodes[i].image || ligo.default_image) + '" alt="@' + ligo.data.nodes[i].handle + '"></a>');
+            }
         }
 
         return this;
