@@ -162,8 +162,8 @@
         } else {
             $(stats_container).empty()
                 .append('<h1>' + ligo.data.options.group + '</h1>')
-                 .append('<p>Members: ' + ligo.data.options.members + '</p>')
-                .append('<p>Friends processed: ' + ligo.data.options.friends + '</p>');
+                 .append('<p>Members: <span class="badge badge-info">' + ligo.data.options.members + '</span></p>')
+                .append('<p>Friends processed: <span class="badge badge-inverse">' + ligo.data.options.friends + '</span></p>');
 
             var $gallery = $('<div class="stats-handles"></div>').appendTo(stats_container);
             $gallery.css('height', $(window).height() - $gallery.offset().top - 20);
@@ -221,7 +221,7 @@
 
         $(document).on('click', '#fps-action', function(){
             clearInterval(fps_ticker);
-            ligo.maxnodes /= 2;
+            ligo.maxnodes = Math.round(ligo.maxnodes / 2);
             ligo.renderGraph(graph_container, true).monitorFps(fps_container);
         });
 
@@ -249,7 +249,7 @@
                 if (fps_counter < 5) {
                     fps_counter++;
                 } else {
-                    if ($('#fps-action').size() < 1) {
+                    if ($('#fps-action').size() < 1 && ligo.maxnodes > 10) {
                         $(container).append('<button id="fps-action" class="btn btn-mini btn-link">Improve performance</button>');
                     }
                     fps_counter = 0;

@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: text/html; charset=utf-8');
+
 Yii::app()->clientScript->registerLinkTag('shortcut icon', 'image/x-icon', 'data:image/x-icon;,')
 
     ->registerMetaTag('width=device-width, initial-scale=1.0', 'viewport')
