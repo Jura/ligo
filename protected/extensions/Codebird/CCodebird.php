@@ -31,27 +31,46 @@ class CCodebird extends CApplicationComponent {
 		Yii::trace(get_class($this).'.getMultipleUserInfo()','ext.codebird');
 		
 		$result = array('success' => false, 'message' => 'Unknown error');
-		
-		$cb = self::getCodebird();
-		
-		$user_ids = implode(',', $ids);
-		
-		Yii::trace(get_class($this).'.findAll()','ext.codebird');
-		$userinfo = $cb->users_lookup(array("user_id" => $user_ids, "include_entities" => false), self::$_config["appauth"]);
-		
-		if ($userinfo->httpstatus == 200) {
-			
-			$result['success'] = true;
-			$result['message'] = 'OK';
-			
-		} else {
-			
-			$result['message'] = 'Codebird can\'t process the users_lookup request: ' . $userinfo->errors[0]->code . ' - ' . $userinfo->errors[0]->message; 
-				
-		}
-		
-		$result['response'] = $userinfo;
-		
+
+        if (count($ids) > 0) {
+
+            $cb = self::getCodebird();
+
+            $user_ids = implode(',', $ids);
+
+            Yii::trace(get_class($this).'.findAll()','ext.codebird');
+
+            $criteria = array("include_entities" => false);
+
+            if (is_numeric($ids[0])) {
+                $criteria['user_id'] = $user_ids;
+            } else {
+                $criteria['screen_name'] = $user_ids;
+            }
+
+            $userinfo = $cb->users_lookup($criteria, self::$_config["appauth"]);
+
+            if ($userinfo->httpstatus == 200) {
+
+                $result['success'] = true;
+                $result['message'] = 'OK';
+
+            } else {
+
+                $result['message'] = 'Codebird can\'t process the users_lookup request: ' . $userinfo->errors[0]->code . ' - ' . $userinfo->errors[0]->message;
+
+            }
+
+            $result['response'] = $userinfo;
+
+        } else {
+
+            $result['success'] = true;
+            $result['message'] = 'Nothing to process';
+            $result['response'] = array();
+
+        }
+
 		return $result;
 		
 	}
@@ -70,31 +89,33 @@ class CCodebird extends CApplicationComponent {
 			
 			if ($findFriends) {
 				$friends = $cb->friends_ids(array("user_id" => $userinfo->id), self::$_config["appauth"]);
-					
-				if ($friends->httpstatus == 200) {
+
+                if ($friends->httpstatus == 200) {
 		
 					$userinfo->friends_list = $friends->ids;
-		
-					while ($friends->httpstatus == 200 && $friends->next_cursor > 0) {
-							
-						$friends = $cb->friends_ids(array("user_id" => $userinfo->id, "cursor" => $friends->next_cursor), self::$_config["appauth"]);
-						
-						if ($friends->httpstatus == 200) {
+
+                    $result['message'] = 'OK';
+                    $result['success'] = true;
+
+                    while ($friends->httpstatus == 200 && $friends->next_cursor > 0) {
+
+						$friends = $cb->friends_ids(array("user_id" => $userinfo->id, "cursor" => $friends->next_cursor_str), self::$_config["appauth"]);
+
+                        if ($friends->httpstatus == 200) {
 							
 							if (count($friends->ids) > 0) {
-								array_push($userinfo->friends_list, $friends->ids);
+                                $userinfo->friends_list = array_merge($userinfo->friends_list, $friends->ids);
 							}							
 							
 						} else {
 							
 							$result['message'] = 'Codebird can\'t process the friends_ids subsequent request: ' . $friends->errors[0]->code . ' - ' . $friends->errors[0]->message;
+                            $result['success'] = false;
 							
 						}						
 							
 					}
-					
-					$result['message'] = 'OK';
-					$result['success'] = true;
+
 		
 				} else {
 		

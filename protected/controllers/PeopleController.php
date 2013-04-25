@@ -21,7 +21,7 @@ class PeopleController extends Controller {
 		$links = array();
 		
 		$criteria = new EMongoCriteria;
-		$criteria->groups('==', new MongoRegex('/' . $group . '/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));
+		$criteria->groups('==', new MongoRegex('/^' . $group . '$/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));
 		$handles = People::model()->findAll($criteria);
 		
 		$track = array();
@@ -55,13 +55,9 @@ class PeopleController extends Controller {
             'friends' => count($allfriends),
             'group' => $group,
             'maxnodes' => $maxnodes,
-            //'top' => array(),
         );
 
-        // set minimal amount of followers to be in top 10
-       // $threshold =  current(array_slice($popular, 9, 1))-1;
-
-        // find unresolved handles
+         // find unresolved handles
         $unresolved = array_diff(array_keys($popular), $allmembers);
 
         $params = array(
@@ -106,14 +102,6 @@ class PeopleController extends Controller {
                     $track[$handle->twitter_id] = $target;
                 }
 
-                // populate top list
-                /*if ($popular[$handle->twitter_id] > $threshold) {
-                    if (!isset($options['top'][$popular[$handle->twitter_id]])) {
-                        $options['top'][$popular[$handle->twitter_id]] = (array) $target;
-                    } else if (!in_array($track[$handle->twitter_id], $options['top'][$popular[$handle->twitter_id]])){
-                        array_push($options['top'][$popular[$handle->twitter_id]], $target);
-                    }
-                }*/
             } else {
                 $target = -1;
             }
@@ -127,27 +115,14 @@ class PeopleController extends Controller {
                             $track[$friend] = array_push($nodes, $pool[$friend])-1 :
                                 array_push($nodes, array('id' => (string)$friend, 'size' => $popular[$friend], 'group' => false ))-1;
                     }
-                    /*if (isset($pool[$friend])) {
-                        $track[$friend] = array_push($nodes, $pool[$friend])-1;
-                    } else {
-                        $track[$friend] = array_push($nodes, array('id' => (string)$friend, 'size' => $popular[$friend], 'group' => false ))-1;
-                    }*/
-                    // insert link
+
+                     // insert link
                     if ($target >= 0) { //&& isset($track[$friend])
                         array_push($links, array(
                             'target' => $target,
                             'source' => $track[$friend]
                         ));
                     }
-
-                    // populate toplist
-                    /*if ($popular[$friend] > $threshold) {
-                        if (!isset($options['top'][$popular[$friend]])) {
-                            $options['top'][$popular[$friend]] = (array) $track[$friend];
-                        } else if (!in_array($track[$friend], $options['top'][$popular[$friend]])) {
-                            array_push($options['top'][$popular[$friend]], $track[$friend]);
-                        }
-                    }*/
 
                 }
 
@@ -170,10 +145,10 @@ class PeopleController extends Controller {
 		
 			// check if the handle is already in database (case-insensitive)			
 			$criteria = new EMongoCriteria;
-			$criteria->handle = new MongoRegex('/' . $h . '/i');
+			$criteria->handle = new MongoRegex('/^' . $h . '$/i');
 			$people = People::model()->find($criteria);
 
-			if (count($people) > 0 && isset($people->userinfo) && isset($people->userinfo['friends_list']) && count($people->userinfo['friends_list']) > 0) {
+			if ($people->count() > 0 && isset($people->userinfo) && isset($people->userinfo['friends_list']) && count($people->userinfo['friends_list']) > 0) {
 				
 				$newgroups = array_diff($groups, $people->groups);
 					
@@ -191,26 +166,25 @@ class PeopleController extends Controller {
 				}
 					
 			} else {
-				
-				$result = CCodebird::getHandleInfo($h);
-				
+				$codebird = new CCodebird;
+				$result = $codebird->getHandleInfo($h);
 				if ($result['success']) {
 		
-					if (count($people) < 1) {
-						$people = new People();
+					if ($people->count() < 1) {
+						$people = new People;
 						$people->twitter_id = $result['userinfo']->id;
 					}
 					
 					$people->handle = $result['userinfo']->screen_name;
 					$people->groups = $groups;
 					$people->timestamp = time();
-					$people->userinfo = $result['userinfo'];
+					$people->userinfo = (array)$result['userinfo'];
 					
 					$people->save();
 					
 					// insert all new handles from friends list into db for further parsing
 					if (isset($result['userinfo']->friends_list) && count($result['userinfo']->friends_list) > 0) {
-						People::insertBareHandles($result['userinfo']->friends_list);
+						$people->insertBareHandles($result['userinfo']->friends_list);
 					}					
 					
 				}
@@ -237,8 +211,8 @@ class PeopleController extends Controller {
 			
 			// register new task
 			$task = new Task;
-			$task->start = Task::getTimestamp();
-			array_push($task->log, Task::formatLogString('started'));
+			$task->setStart();
+			array_push($task->log, $task->formatLogString('started'));
 			$task->status = 'active';
 			$task->save();
 			
@@ -248,7 +222,7 @@ class PeopleController extends Controller {
 				// get all bare handles
 				$params = array(
 					'conditions' => array(
-						'handle' => array('notexists')	
+						'userinfo' => array('notexists')
 					),
 					'limit' => 500, // limit records to process to avoid cursor timeouts
 				);
@@ -258,28 +232,33 @@ class PeopleController extends Controller {
 				if ($handles->count() > 0) {
 					
 					$user_id = array();
+                    $user_handle = array();
 					
 					foreach ($handles as $handle) {
 						
 						// extract IDs
-						array_push($user_id, $handle->twitter_id);
-						
+                        if (is_numeric($handle->twitter_id)) {
+                            array_push($user_id, $handle->twitter_id);
+                        } else if (strlen($handle->handle) > 0) {
+                            array_push($user_handle, $handle->handle);
+                        }
 					}
 					
 					// 100 is a limit by Twitter API for bulk user info resolution
-					$ids = array_chunk($user_id, 100);
-					
+					$ids = array_merge(array_chunk($user_id, 100), array_chunk($user_handle, 100));
+
 					foreach ($ids as $bulk) {
 						
 						// prevent max execution time exceeded errors
 						if (Task::getTimestamp() > $task->start + $max_exec) {
-								array_push($task->log, Task::formatLogString('Maximum execution time exceeded'));
+								array_push($task->log, $task->formatLogString('Maximum execution time exceeded'));
 								$task->status = 'Finished with errrors';
 								break;
 							//throw new Exception('Maximum execution time exceeded');
 						}
-						
-						$result = CCodebird::getMultipleUserInfo($bulk);
+
+                        $codebird = new CCodebird;
+                        $result = $codebird->getMultipleUserInfo($bulk);
 						
 						if ($result['success']) {
 							
@@ -287,7 +266,7 @@ class PeopleController extends Controller {
 								
 								// prevent max execution time exceeded errors
 								if (Task::getTimestamp() > $task->start + $max_exec) {
-									array_push($task->log, Task::formatLogString('Maximum execution time exceeded'));
+									array_push($task->log, $task->formatLogString('Maximum execution time exceeded'));
 									$task->status = 'Finished with errrors';
 									break 2;
 									//throw new Exception('Maximum execution time exceeded');
@@ -295,13 +274,18 @@ class PeopleController extends Controller {
 								
 								// parse only userinfo objects
 								if (is_numeric($key)) {
-									
-									$doc = People::model()->findByAttributes(array('twitter_id' => $value->id));
-									// bare record
+
+                                    if (is_numeric($bulk[0])) {
+                                        $doc = People::model()->findByAttributes(array('twitter_id' => $value->id));
+                                        $doc->handle = $value->screen_name;
+                                    } else {
+                                        $doc = People::model()->findByAttributes(array('handle' => $value->screen_name));
+                                        $doc->twitter_id = $value->id;
+                                    }
+                                    // bare record
 									if (!isset($doc->groups)) {
 										$doc->groups = array();
 									}
-									$doc->handle = $value->screen_name;
 									$doc->timestamp = Task::getTimestamp();
 									$doc->userinfo = (array)$value;
 									if (!isset($doc->userinfo['friends_list'])) {
@@ -313,7 +297,7 @@ class PeopleController extends Controller {
 								
 							}						
 							
-							array_push($task->log, Task::formatLogString(count($bulk) . ' twitter IDs processed'));
+							array_push($task->log, $task->formatLogString(count($bulk) . ' twitter IDs processed'));
 							
 						} else {
 							
@@ -321,16 +305,19 @@ class PeopleController extends Controller {
 							
 							// try to clean up database from dead souls (suspended or deleted users), one record at a time
 							if ($result['response']->httpstatus == 403 || $result['response']->httpstatus == 404) {
-								
-								$doc = People::model()->findByAttributes(array('twitter_id' => $bulk[0]));
+
+                                $field = (is_numeric($bulk[0])) ? 'twitter_id' : 'handle';
+
+                                $doc = People::model()->findByAttributes(array($field => $bulk[0]));
+
 								$doc->delete();
 								
-								array_push($task->log, Task::formatLogString('ID: ' . $bulk[0] . ' has been removed from database since its returned API error: ' . $result['message']));
+								array_push($task->log, $task->formatLogString('ID: ' . $bulk[0] . ' has been removed from database since its returned API error: ' . $result['message']));
 								
 								
 							} else {
 								
-								array_push($task->log, Task::formatLogString('Twitter API error: ' . $result['message']));
+								array_push($task->log, $task->formatLogString('Twitter API error: ' . $result['message']));
 								break;
 								
 							}							
@@ -343,7 +330,7 @@ class PeopleController extends Controller {
 					
 				} else {
 					
-					array_push($task->log, Task::formatLogString('DB is saying: nothing to update'));
+					array_push($task->log, $task->formatLogString('DB is saying: nothing to update'));
 					$task->status = 'OK';
 					
 				}
@@ -365,14 +352,14 @@ class PeopleController extends Controller {
 						)
 					)
 				));
-				array_push($task->log, Task::formatLogString('abnormal termination due to the PHP error: ' . $e->getMessage()));
+				array_push($task->log, $task->formatLogString('abnormal termination due to the PHP error: ' . $e->getMessage()));
 				$task->status = 'Failed';
 				
 			}
 			
 			// finalize the task, regardless the result
-			array_push($task->log, Task::formatLogString('finished'));
-			$task->finish = Task::getTimestamp();
+			array_push($task->log, $task->formatLogString('finished'));
+			$task->setFinish();
 			$task->save();
 			
 		} else {
