@@ -13,22 +13,23 @@ $this->pageTitle=Yii::app()->name;
         <div id="fps"></div>
     </div>
 </div>
-<!-- 
+
+<?php
+/*<!--
 <form class="form-inline" id="people-suggest-form" action="<?php echo $this->createUrl('people/suggest'); ?>" method="get">
 	<textarea rows="2" placeholder="Twitter handles" name="handle" id="handle" class="input-medium"></textarea>
 	<textarea rows="2" placeholder="Groups" name="group" id="group" class="input-medium"></textarea>
 	<button type="submit" class="btn">Submit</button>
 </form>
- -->
-
-<?php
+    -->
+*/
 
 $api_endpoint = Yii::app()->request->baseUrl;
 
 $script = <<<EOT
 
+    // set graph container's height
     var _graph = $('#graph');
-    // set container's height
     _graph.height($(window).height() - _graph.offset().top - _graph.offset().left);
 
     var options = {
