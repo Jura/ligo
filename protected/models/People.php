@@ -28,7 +28,7 @@ class People extends EMongoDocument {
 				'key' => array(
 					'handle' => EMongoCriteria::SORT_ASC
 				),
-				'unique'=>true,
+				//'unique'=>true,
 			)
 		);
 	}
@@ -51,11 +51,16 @@ class People extends EMongoDocument {
 		$col = self::model()->getCollection();
 		$docs = array();
 		foreach ($handles as $handle) {
-			array_push($docs, array('twitter_id' => $handle));
-		}		
-		$col->batchInsert($docs, array('continueOnError' => true));
+            if (is_numeric($handle)) {
+                array_push($docs, array('twitter_id' => $handle));
+            }
+		}
+
+        $col->batchInsert($docs, array('ContinueOnError' => true));
+
+        return count($docs);
 		
 	}
-	
+
 }
 ?>

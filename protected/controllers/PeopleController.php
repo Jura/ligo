@@ -61,12 +61,12 @@ class PeopleController extends Controller {
         $unresolved = array_diff(array_keys($popular), $allmembers);
 
         $params = array(
-			'conditions' => array(
-				'userinfo' => array('exists'),
-				'twitter_id' => array('in' => $unresolved),
-			),
-			'select' => array('twitter_id', 'handle', 'groups','userinfo.profile_image_url_https'),
-		);
+            'conditions' => array(
+                'userinfo' => array('exists'),
+                'twitter_id' => array('in' => $unresolved),
+            ),
+            'select' => array('twitter_id', 'handle', 'groups','userinfo.profile_image_url_https'),
+        );
 		$criteria = new EMongoCriteria($params);
 		$dbpool = People::model()->findAll($criteria);
 		
@@ -368,7 +368,23 @@ class PeopleController extends Controller {
 			
 		}
 		
-	} 
+	}
+
+    public function actionMapFriendsTest(){
+
+        $people = new People;
+        $col = $people->model()->getCollection();
+
+        $frineds = $col->distinct('userinfo.friends_list');
+        $ids = $col->distinct('twitter_id');
+        //ini_set('max_execution_time', '120');
+        $result = $people->insertBareHandles(array_diff($frineds, $ids));
+
+        var_dump(MongoDB::lastError());
+        die();
+        //$result = ;
+        //$this->renderPartial('//layouts/json', compact('result'));
+    }
 
 	/**
 	 * This is the action to handle external exceptions.
