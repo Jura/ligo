@@ -162,8 +162,8 @@
         } else {
             $(stats_container).empty()
                 .append('<h1>' + ligo.data.options.group + '</h1>')
-                 .append('<p>Members: <span class="badge badge-info">' + ligo.data.options.members + '</span></p>')
-                .append('<p>Friends processed: <span class="badge badge-inverse">' + ligo.data.options.friends + '</span></p>');
+                 .append('<p>Group members: <span class="badge badge-info">' + ligo.data.options.members + '</span></p>')
+                .append('<p>Connections analyzed: <span class="badge badge-inverse">' + ligo.data.options.friends + '</span></p>');
 
             var $gallery = $('<div class="stats-handles"></div>').appendTo(stats_container);
             $gallery.css('height', $(window).height() - $gallery.offset().top - 20);
@@ -173,7 +173,7 @@
 
                 if ($div.length < 1) {
                     var $divs = $('.stats-handles-container', $gallery);
-                    $div = $('<div id="stats-size-' + ligo.data.nodes[i].size + '" class="stats-handles-container"><h3>Followed by ' + ligo.data.nodes[i].size + ' members (' + Math.round(ligo.data.nodes[i].size*100/ligo.data.options.members) + '%)</h3><ul class="thumbnails"></ul></div>').data('size', ligo.data.nodes[i].size);
+                    $div = $('<div id="stats-size-' + ligo.data.nodes[i].size + '" class="stats-handles-container row-fluid"><div class="span3"><h1 title="Followed by ' + ligo.data.nodes[i].size + ' ' + ligo.data.options.group + ' group members" class="muted">' + Math.round(ligo.data.nodes[i].size*100/ligo.data.options.members) + '%: </h1></div><div class="span9"><ul class="thumbnails"></ul></div></div>').data('size', ligo.data.nodes[i].size);
                     if ($divs.length > 0 && $divs.last().data('size') < ligo.data.nodes[i].size) {
                         $divs.each(function(j){
                             if ($(this).data('size') < ligo.data.nodes[i].size) {

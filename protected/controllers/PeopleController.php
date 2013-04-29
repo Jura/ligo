@@ -5,7 +5,7 @@ class PeopleController extends Controller {
 	// default group
 	protected static $_group = 'UNDP';
 	
-	public function actionIndex($group = '', $maxnodes = 100) {
+	public function actionIndex($group = '', $maxnodes = 50) {
 				
 		$this->render('index', compact('group', 'maxnodes'));
 		
