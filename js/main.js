@@ -91,16 +91,20 @@
             reload = arguments[1] || false;
 
         // setup container's params if the argument provided
-        if (container != graph_container || reload) {
-            graph_svg = null;
+        if (container != graph_container) {
             graph_container = container;
-            graph_width = $(graph_container).width();
-            graph_height = $(graph_container).height();
         }
 
         if (ligo.data === null || reload) {
+
             ligo.loadData(ligo.renderGraph, reload);
+
         } else {
+
+            graph_svg = null;
+            graph_width = $(graph_container).width();
+            graph_height = $(graph_container).height();
+
             var force = ligo.getForce(), svg = ligo.getSvg(), data = ligo.data;
 
             force.nodes(data.nodes).links(data.links).start();
@@ -160,9 +164,10 @@
         if (ligo.data === null || reload) {
             ligo.loadData(ligo.renderStats, reload);
         } else {
+
             $(stats_container).empty()
                 .append('<h1>' + ligo.data.options.group + '</h1>')
-                 .append('<p>Group members: <span class="badge badge-info">' + ligo.data.options.members + '</span></p>')
+                .append('<p>Group members: <span class="badge badge-info">' + ligo.data.options.members + '</span></p>')
                 .append('<p>Connections analyzed: <span class="badge badge-inverse">' + ligo.data.options.friends + '</span></p>');
 
             var $gallery = $('<div class="stats-handles"></div>').appendTo(stats_container);

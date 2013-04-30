@@ -9,6 +9,21 @@ $this->pageTitle=Yii::app()->name;
         <div id="graph"></div>
     </div>
     <div class="span4">
+        <ul class="nav nav-pills">
+            <li class="dropdown active">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Available groups  <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <?php
+                    foreach($groups as $key => $value) {
+                        if ($value > 3) {
+                            echo '<li><a href="' . Yii::app()->request->baseUrl . '/#' . $key . '"><span class="badge badge-info">' . $value . '</span> <b>' . $key . '</b></a></li>';
+                        }
+                    }
+                    ?>
+                </ul>
+            </li>
+
+        </ul>
         <div id="toplist"></div>
         <div id="fps"></div>
     </div>
@@ -34,11 +49,21 @@ $script = <<<EOT
 
     var options = {
         'api_endpoint': '$api_endpoint',
-        'group': '$group',
+        //'group': '$group',
+        'group': window.location.hash.substring(1),
         'maxnodes': '$maxnodes'
     };
 
     ligo.init(options).renderStats('#toplist').renderGraph('#graph').monitorFps('#fps');
+
+    $(window).bind('hashchange', function(){
+        var _group = window.location.hash.substring(1);
+        if (ligo.group.toLowerCase() != _group.toLowerCase()) {
+            ligo.data = null;
+            ligo.group = _group;
+            ligo.renderStats().renderGraph();
+        }
+    });
 
 EOT;
 

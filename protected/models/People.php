@@ -62,5 +62,14 @@ class People extends EMongoDocument {
 		
 	}
 
+    public function getPopulatedGroups($threshold=2) {
+
+        $col = self::model()->getCollection();
+        $reduce = 'function (obj, prev) { obj.groups.forEach( function(e) { prev.groups[e] = prev.groups[e] || 0; prev.groups[e]++; });}';
+        $result = $col->group(array(), array('groups' => array()), $reduce);
+        ksort($result['retval'][0]['groups'], SORT_NATURAL);
+        return $result['retval'][0]['groups'];
+    }
+
 }
 ?>
