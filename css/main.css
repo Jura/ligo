@@ -1,11 +1,21 @@
 #fps {
-    position: absolute;
-    right: 20px;
-    top: 2px;
-    width: 150px;
+    width: 100px;
+    padding: 10px 15px 10px;
+}
+#fps-action {
+    margin-top:-3px;
 }
 #graph {
     overflow: hidden;
+}
+#newhandles {
+    padding: 10px;
+}
+#recaptcha-error {
+    color: #FF0000;
+}
+.input-recaptcha{
+    width:178px;
 }
 .link {
 	stroke: rgba(200,200,200,0.5);

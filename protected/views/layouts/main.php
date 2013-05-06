@@ -8,6 +8,8 @@ Yii::app()->clientScript->registerLinkTag('shortcut icon', 'image/x-icon', 'data
 
     ->registerCoreScript('jquery')->registerPackage('d3')->registerPackage('bootstrap')
 
+    ->registerScriptFile(Yii::app()->request->baseUrl.'/js/ligo.js')
+
     ->registerCssFile(Yii::app()->request->baseUrl.'/css/main.css')
 
     ->registerScriptFile(Yii::app()->request->baseUrl.'/js/main.js');

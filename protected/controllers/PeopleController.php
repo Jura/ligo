@@ -134,12 +134,108 @@ class PeopleController extends Controller {
         //krsort($options['top'], SORT_NUMERIC);
 		$this->renderPartial('//layouts/json', array('content' => compact('nodes','links','options')));
 	}
+
+    public function actionSuggest() {//$handles = '', $groups = '', $comments = '', $recaptcha_remoteip = '', $recaptcha_challenge = '', $recaptcha_response = ''
+
+        // turn lists into arrays
+        $_handles = array_values(array_unique(preg_split("/\W/", Yii::app()->getRequest()->getParam('handles'), -1, PREG_SPLIT_NO_EMPTY)));
+        $_groups = array_values(array_unique(preg_split("/\W/", Yii::app()->getRequest()->getParam('groups'), -1, PREG_SPLIT_NO_EMPTY)));
+
+        // process CAPTCHA
+        $rc = new CRecaptcha;
+        $recaptcha = $rc->check_answer(Yii::app()->getRequest()->getParam('recaptcha_remoteip'), Yii::app()->getRequest()->getParam('recaptcha_challenge'), Yii::app()->getRequest()->getParam('recaptcha_response'));
+
+        $content = array(
+            'recaptcha' => array(
+                'isValid' => $recaptcha->is_valid,
+                'error' => $recaptcha->error,
+            ),
+            'success' => $recaptcha->is_valid,
+            'message' => ($recaptcha->error == null) ? 'OK' : $recaptcha->error,
+        );
+
+        if ($recaptcha->is_valid && count($_handles) > 0 && count($_groups > 0)) {
+
+            // search for the handles already in database
+            $params = array(
+                'conditions' => array(
+                    'handle' => array(
+                        'in' => $_handles
+                    ),
+                    'groups' => array(
+                        'all' => $_groups
+                    ),
+                ),
+                'select' => array('handle')
+            );
+
+            $existing = array();
+            $people = People::model()->findAll($params);
+            if ($people->count() > 0) {
+                foreach($people as $p) {
+                    array_push($existing, $p->handle);
+                }
+            }
+            $sandbox = Sandbox::model()->findAll($params);
+            if ($sandbox->count() > 0) {
+                foreach($sandbox as $s) {
+                    array_push($existing, $s->handle);
+                }
+            }
+
+            $new = array_diff($_handles, $existing);
+
+            if (count($new) > 0) {
+
+                foreach ($new as $h) {
+                    $doc = new Sandbox;
+                    $doc->handle = $h;
+                    $doc->groups = $_groups;
+                    $doc->ts = Task::getTimestamp();
+                    $doc->remoteip = Yii::app()->getRequest()->getParam('recaptcha_remoteip');
+                    $doc->save();
+                }
+
+                $content['message'] = 'Thank you for submission, ' . count($new) . ' new Twitter handle' . ( (count($new) % 10 == 1) ? ' is' : 's are' ) . ' queued for addition to ' . implode(', ', $_groups) . ' groups';
+
+                // Notify admin about new additions
+                $mail = new YiiMailer;
+                $mail->setView('notification');
+                $mail->setData( array(
+                    'from' => Yii::app()->getRequest()->getParam('recaptcha_remoteip'),
+                    'description' => 'New Twitter handles suggestion',
+                    'message' => '<p>Handles <b>@' . implode(', @', $_handles) . '</b> proposed to add to <b>' . implode(', ', $_groups) . '</b> groups</p><p><b>Comments:</b><p>' . Yii::app()->getRequest()->getParam('comments') . '</p>',
+                ));
+                $mail->render();
+
+                $mail->Subject = Yii::app()->name . ': New Twitter handles notification';
+                $mail->AddAddress(Yii::app()->params['adminEmail']);
+                $mail->Send();
+
+            } else {
+
+                $content['message'] = 'Nothing to add, all handles already in database';
+
+            }
+
+            $content['success'] = true;
+
+        } else {
+
+            $content['success'] = false;
+            $content['message'] = 'Please submit correct values';
+
+        }
+
+        $this->renderPartial('//layouts/json', compact('content'));
+
+    }
 	
-	public function actionSuggest($handle = '', $group = '') {
+	public function actionSuggestInternal($handle = '', $group = '') {
 		
 		// turn lists into arrays
-		$handles = preg_split("/\W/", $handle, -1, PREG_SPLIT_NO_EMPTY);
-		$groups = preg_split("/\W/", $group, -1, PREG_SPLIT_NO_EMPTY);
+		$handles = array_values(array_unique(preg_split("/\W/", $handle, -1, PREG_SPLIT_NO_EMPTY)));
+		$groups = array_values(array_unique(preg_split("/\W/", $group, -1, PREG_SPLIT_NO_EMPTY)));
 		
 		$messages = array();
 
@@ -372,7 +468,7 @@ class PeopleController extends Controller {
 		
 	}
 
-    public function actionMapFriendsTest(){
+    /*public function actionMapFriendsTest(){
 
         $people = new People;
         $col = $people->model()->getCollection();
@@ -386,7 +482,7 @@ class PeopleController extends Controller {
         die();
         //$result = ;
         //$this->renderPartial('//layouts/json', compact('result'));
-    }
+    }*/
 
 	/**
 	 * This is the action to handle external exceptions.
