@@ -1,10 +1,10 @@
 #fps {
     width: 100px;
-    padding: 10px 15px 10px;
+    /*padding: 10px 15px 10px;*/
 }
-#fps-action {
+/*#fps-action {
     margin-top:-3px;
-}
+}*/
 #graph {
     overflow: hidden;
 }

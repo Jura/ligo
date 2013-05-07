@@ -4,7 +4,6 @@ $this->pageTitle=Yii::app()->name;
 
 ?>
 
-
 <div class="navbar">
     <div class="navbar-inner">
         <a class="brand" href="#" data-toggle="tooltip" data-placement="bottom" data-title="Loading..." data-trigger="manual"><?php echo Yii::app()->name; ?></a>
@@ -27,7 +26,7 @@ $this->pageTitle=Yii::app()->name;
                                 <textarea name="comments" id="comments"></textarea>
                             </div>
 
-                            <script>var RecaptchaOptions = {theme : 'custom',custom_theme_widget: 'recaptcha_widget'}, _remote_ip = '<?php echo $_SERVER['REMOTE_ADDR']; ?>';</script>
+                            <script>var RecaptchaOptions = {theme : 'custom',custom_theme_widget: 'recaptcha_widget'}, _remote_ip = '<?php echo Yii::app()->params['remoteip']; ?>';</script>
                             <div id="recaptcha_widget" style="display:none">
 
                                 <div class="controls">

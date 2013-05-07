@@ -224,14 +224,16 @@
             fps_container = container;
         }
 
-        $(document).on('click', '#fps-action', function(){
-            clearInterval(fps_ticker);
-            ligo.maxnodes = Math.round(ligo.maxnodes / 2);
-            ligo.renderGraph(graph_container, true).monitorFps(fps_container);
-        });
 
         if ($('#fps-indicator').size() < 1) {
-            $(container).html('FPS: <span id="fps-indicator" class="label"></span>');
+            $(container).html('<a href="#" id="fps-action" class="disabled" title="Click to improve performance"> FPS: <span id="fps-indicator" class="label"></span></a>');
+            $('#fps-action').on('click', function(e){
+                e.preventDefault();
+                clearInterval(fps_ticker);
+                ligo.maxnodes = Math.round(ligo.maxnodes / 2);
+                ligo.renderGraph(graph_container, true).monitorFps(fps_container);
+                return false;
+            });
         }
 
 
@@ -254,9 +256,13 @@
                 if (fps_counter < 5) {
                     fps_counter++;
                 } else {
-                    if ($('#fps-action').size() < 1 && ligo.maxnodes > 10) {
-                        $(container).append(' <button id="fps-action" class="btn btn-mini btn-link">fix</button>');
-                    }
+                    $('#fps-action').toggleClass('disabled', ligo.maxnodes > 10);
+                    /*if () { //$('#fps-action').size() < 1 &&
+                        addClass('disabled');
+                        //$(container).append(' <button id="fps-action" class="btn btn-mini btn-link">fix</button>');
+                    } else {
+
+                    }*/
                     fps_counter = 0;
                 }
             }

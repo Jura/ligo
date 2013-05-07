@@ -73,5 +73,6 @@ return array(
 	'params'=>array(
 		'adminEmail'=>'jura.khrapunov@undp.org',
         'recaptcha_public_key' => '6LdZH8ESAAAAAO6O9yaiaNqy9h05OKQ_VnnX7qOB',
+        'remoteip' => getenv('HTTP_X_FORWARDED_FOR'),
 	),
 );
