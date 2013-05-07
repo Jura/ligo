@@ -26,7 +26,7 @@
         fps_prevTime = Date.now(),
         fps = 0,
         fps_frames = 0,
-        fps_counter = 0,
+        //fps_counter = 0,
         fps_ticker = null;
 
     //Public Properties
@@ -226,9 +226,8 @@
 
 
         if ($('#fps-indicator').size() < 1) {
-            $(container).html('<a href="#" id="fps-action" class="disabled" title="Click to improve performance"> FPS: <span id="fps-indicator" class="label"></span></a>');
+            $(container).html('<a href="#" id="fps-action" title="Click to improve performance"> FPS: <span id="fps-indicator" class="label"></span></a>');
             $('#fps-action').on('click', function(e){
-                e.preventDefault();
                 clearInterval(fps_ticker);
                 ligo.maxnodes = Math.round(ligo.maxnodes / 2);
                 ligo.renderGraph(graph_container, true).monitorFps(fps_container);
@@ -250,21 +249,6 @@
                 fps_frames = 0;
 
 
-            }
-
-            if (fps < 5 && fps > 0 && ligo.maxnodes > 10) {
-                if (fps_counter < 5) {
-                    fps_counter++;
-                } else {
-                    $('#fps-action').toggleClass('disabled', ligo.maxnodes > 10);
-                    /*if () { //$('#fps-action').size() < 1 &&
-                        addClass('disabled');
-                        //$(container).append(' <button id="fps-action" class="btn btn-mini btn-link">fix</button>');
-                    } else {
-
-                    }*/
-                    fps_counter = 0;
-                }
             }
         }, 1000 / 60);
 
