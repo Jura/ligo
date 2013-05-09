@@ -41,10 +41,10 @@ return array(
             'Mailer' => 'smtp',
             'Port' => $creds['MAILGUN']['MAILGUN_SMTP_PORT'],
             'SMTPAuth' => true,
-            'SMTPSecure' => 'tls',
+            //'SMTPSecure' => 'tls',
             'CharSet' => 'utf-8',
-            'From' => 'noreply@ligo.cloudcontrolled.com',
-            'FromName' => 'Ligo',
+            'From' => 'noreply@cloud32.mailgun.org',
+            'FromName' => 'Ligo via MailGun',
         ),
 
         'clientScript' => array(
