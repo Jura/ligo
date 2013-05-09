@@ -210,7 +210,10 @@ class PeopleController extends Controller {
 
                 $mail->Subject = Yii::app()->name . ': New Twitter handles notification';
                 $mail->AddAddress(Yii::app()->params['adminEmail']);
-                $mail->Send();
+
+                if (!$mail->Send()) {
+                    $content['message'] .= ' Email wasn\'t sent: ' . $mail->ErrorInfo;
+                }
 
             } else {
 
