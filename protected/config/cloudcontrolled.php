@@ -21,7 +21,7 @@ return array(
 		'ext.YiiMongoDbSuite.*',
 		'ext.Codebird.*',
         'ext.recaptcha.*',
-        'ext.YiiMailer.YiiMailer',
+        'ext.phpmailer.PHPMailer',
 	),
 
 	'modules'=>array(
@@ -32,6 +32,20 @@ return array(
 		'cache'=>array(
 				'class'=>'system.caching.CApcCache',
 		),
+
+        'phpmailer'=>array(
+            'class' => 'PHPMailer',
+            'Host' => $creds['MAILGUN']['MAILGUN_SMTP_SERVER'],
+            'Username' => $creds['MAILGUN']['MAILGUN_SMTP_LOGIN'],
+            'Password' => $creds['MAILGUN']['MAILGUN_SMTP_PASSWORD'],
+            'Mailer' => 'smtp',
+            'Port' => $creds['MAILGUN']['MAILGUN_SMTP_PORT'],
+            'SMTPAuth' => true,
+            'SMTPSecure' => 'tls',
+            'CharSet' => 'utf-8',
+            'From' => 'noreply@ligo.cloudcontrolled.com',
+            'FromName' => 'Ligo',
+        ),
 
         'clientScript' => array(
             'coreScriptPosition' => CClientScript::POS_END,

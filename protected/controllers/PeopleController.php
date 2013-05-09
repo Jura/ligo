@@ -199,14 +199,14 @@ class PeopleController extends Controller {
                 $content['message'] = 'Thank you for submission, ' . count($new) . ' new Twitter handle' . ( (count($new) % 10 == 1) ? ' is' : 's are' ) . ' queued for addition to ' . implode(', ', $_groups) . ' groups';
 
                 // Notify admin about new additions
-                $mail = new YiiMailer;
-                $mail->setView('notification');
-                $mail->setData( array(
-                    'from' => Yii::app()->getRequest()->getParam('recaptcha_remoteip'),
-                    'description' => 'New Twitter handles suggestion',
-                    'message' => '<p>Handles <b>@' . implode(', @', $_handles) . '</b> proposed to add to <b>' . implode(', ', $_groups) . '</b> groups</p><p><b>Comments:</b><p>' . Yii::app()->getRequest()->getParam('comments') . '</p>',
-                ));
-                $mail->render();
+                $mail = new PHPMailer;
+
+                $mail_content = $this->renderPartial('//layouts/mail', array(
+                    'content' => '<p>Message from: ' . Yii::app()->getRequest()->getParam('recaptcha_remoteip') . '</p><p>Handles <b>@' . implode(', @', $_handles) . '</b> proposed to add to <b>' . implode(', ', $_groups) . '</b> groups</p><p><b>Comments:</b><p>' . Yii::app()->getRequest()->getParam('comments') . '</p>',
+                    'description' => 'New Twitter handles suggestion'
+                ), true);
+                $mail->IsHTML(true);
+                $mail->MsgHTML($mail_content);
 
                 $mail->Subject = Yii::app()->name . ': New Twitter handles notification';
                 $mail->AddAddress(Yii::app()->params['adminEmail']);
