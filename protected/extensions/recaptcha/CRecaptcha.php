@@ -8,7 +8,18 @@ class ReCaptchaResponse {
 class CRecaptcha extends CComponent {
 
     // private key
-    protected static $_privkey = '6LdZH8ESAAAAAG57cm7ItKfVjVQgAzvcwlyCOLWo';
+    protected static $_privkey = '';
+
+    const PRIV_KEY = 'recaptcha_private_key';
+
+    public function __construct()
+    {
+        //initialize config
+        if(isset(Yii::app()->params[self::PRIV_KEY]))
+            self::$_privkey = Yii::app()->params[self::PRIV_KEY];
+        else
+            throw new CException('please set reCAPTCHA private key in config');
+    }
 
     public function check_answer ($remoteip, $challenge, $response, $extra_params = array())
     {

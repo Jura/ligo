@@ -193,25 +193,23 @@ class PeopleController extends Controller {
                     $doc->groups = $_groups;
                     $doc->ts = Task::getTimestamp();
                     $doc->remoteip = Yii::app()->getRequest()->getParam('recaptcha_remoteip');
-                    $doc->save();
+                    //$doc->save();
                 }
 
-                $content['message'] = 'Thank you for submission, ' . count($new) . ' new Twitter handle' . ( (count($new) % 10 == 1) ? ' is' : 's are' ) . ' queued for addition to ' . implode(', ', $_groups) . ' groups';
+                $content['message'] = 'Thank you for submission, ' . count($new) . ' new Twitter handle' . ( (count($new) % 10 == 1) ? ' is' : 's are' ) . ' queued for addition to ' . implode(', ', $_groups) . ' groups.';
 
                 // Notify admin about new additions
-                $mail = new PHPMailer;
-
-                $mail_content = $this->renderPartial('//layouts/mail', array(
-                    'content' => '<p>Message from: ' . Yii::app()->getRequest()->getParam('recaptcha_remoteip') . '</p><p>Handles <b>@' . implode(', @', $_handles) . '</b> proposed to add to <b>' . implode(', ', $_groups) . '</b> groups</p><p><b>Comments:</b><p>' . Yii::app()->getRequest()->getParam('comments') . '</p>',
-                    'description' => 'New Twitter handles suggestion'
-                ), true);
-                $mail->IsHTML(true);
-                $mail->MsgHTML($mail_content);
-
+                $mail = new YiiMailer('notification', array(
+                    'description' => 'New Twitter handles suggestion',
+                    'name' => Yii::app()->getRequest()->getParam('recaptcha_remoteip'),
+                    'message' => 'Handles <b>@' . implode(', @', $_handles) . '</b> proposed to add to <b>' . implode(', ', $_groups) . '</b> groups',
+                ));
+                $mail->render();
                 $mail->Subject = Yii::app()->name . ': New Twitter handles notification';
                 $mail->AddAddress(Yii::app()->params['adminEmail']);
 
                 if (!$mail->Send()) {
+                    $mail->ClearAddresses();
                     $content['message'] .= ' Email wasn\'t sent: ' . $mail->ErrorInfo;
                 }
 
