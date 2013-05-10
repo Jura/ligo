@@ -19,9 +19,9 @@ return array(
 		'application.models.*',
 		'application.components.*',
 		'ext.YiiMongoDbSuite.*',
-		'ext.Codebird.*',
-        'ext.recaptcha.*',
-        'ext.phpmailer.PHPMailer',
+		'ext.Codebird.CCodebird',
+        'ext.recaptcha.CRecaptcha',
+        'ext.yiimailer.YiiMailer',
 	),
 
 	'modules'=>array(
@@ -32,20 +32,6 @@ return array(
 		'cache'=>array(
 				'class'=>'system.caching.CApcCache',
 		),
-
-        'phpmailer'=>array(
-            'class' => 'PHPMailer',
-            'Host' => $creds['MAILGUN']['MAILGUN_SMTP_SERVER'],
-            'Username' => $creds['MAILGUN']['MAILGUN_SMTP_LOGIN'],
-            'Password' => $creds['MAILGUN']['MAILGUN_SMTP_PASSWORD'],
-            'Mailer' => 'smtp',
-            'Port' => $creds['MAILGUN']['MAILGUN_SMTP_PORT'],
-            'SMTPAuth' => true,
-            //'SMTPSecure' => 'tls',
-            'CharSet' => 'utf-8',
-            'From' => 'noreply@cloud32.mailgun.org',
-            'FromName' => 'Ligo via MailGun',
-        ),
 
         'clientScript' => array(
             'coreScriptPosition' => CClientScript::POS_END,
@@ -84,9 +70,49 @@ return array(
 		),
 	),
 
-	'params'=>array(
+    'params'=>array(
 		'adminEmail'=>'jura.khrapunov@undp.org',
         'recaptcha_public_key' => '6LdZH8ESAAAAAO6O9yaiaNqy9h05OKQ_VnnX7qOB',
+        'recaptcha_private_key' => '6LdZH8ESAAAAAG57cm7ItKfVjVQgAzvcwlyCOLWo',
         'remoteip' => getenv('HTTP_X_FORWARDED_FOR'),
-	),
+        'YiiMailer'=>array(
+            'Host' => $creds['MAILGUN']['MAILGUN_SMTP_SERVER'],
+            'Username' => $creds['MAILGUN']['MAILGUN_SMTP_LOGIN'],
+            'Password' => $creds['MAILGUN']['MAILGUN_SMTP_PASSWORD'],
+            'Mailer' => 'smtp',
+            'Port' => $creds['MAILGUN']['MAILGUN_SMTP_PORT'],
+            'SMTPAuth' => true,
+            'From' => 'noreply@ligo.cloudcontrolled.com',
+            'FromName' => 'Ligo',
+            'CharSet' => 'UTF-8',
+            'AltBody' => Yii::t('YiiMailer','You need an HTML capable viewer to read this message.'),
+
+            'viewPath' => 'application.views.mail',
+            'layoutPath' => 'application.views.layouts',
+            'baseDirPath' => 'webroot.images.mail',
+            'layout' => 'mail',
+            'language' => array(
+                'authenticate'         => Yii::t('YiiMailer','SMTP Error: Could not authenticate.'),
+                'connect_host'         => Yii::t('YiiMailer','SMTP Error: Could not connect to SMTP host.'),
+                'data_not_accepted'    => Yii::t('YiiMailer','SMTP Error: Data not accepted.'),
+                'empty_message'        => Yii::t('YiiMailer','Message body empty'),
+                'encoding'             => Yii::t('YiiMailer','Unknown encoding: '),
+                'execute'              => Yii::t('YiiMailer','Could not execute: '),
+                'file_access'          => Yii::t('YiiMailer','Could not access file: '),
+                'file_open'            => Yii::t('YiiMailer','File Error: Could not open file: '),
+                'from_failed'          => Yii::t('YiiMailer','The following From address failed: '),
+                'instantiate'          => Yii::t('YiiMailer','Could not instantiate mail function.'),
+                'invalid_address'      => Yii::t('YiiMailer','Invalid address'),
+                'mailer_not_supported' => Yii::t('YiiMailer',' mailer is not supported.'),
+                'provide_address'      => Yii::t('YiiMailer','You must provide at least one recipient email address.'),
+                'recipients_failed'    => Yii::t('YiiMailer','SMTP Error: The following recipients failed: '),
+                'signing'              => Yii::t('YiiMailer','Signing Error: '),
+                'smtp_connect_failed'  => Yii::t('YiiMailer','SMTP Connect() failed.'),
+                'smtp_error'           => Yii::t('YiiMailer','SMTP server error: '),
+                'variable_set'         => Yii::t('YiiMailer','Cannot set or reset variable: ')
+            ),
+
+        ),
+
+    ),
 );

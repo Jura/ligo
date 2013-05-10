@@ -193,7 +193,7 @@ class PeopleController extends Controller {
                     $doc->groups = $_groups;
                     $doc->ts = Task::getTimestamp();
                     $doc->remoteip = Yii::app()->getRequest()->getParam('recaptcha_remoteip');
-                    //$doc->save();
+                    $doc->save();
                 }
 
                 $content['message'] = 'Thank you for submission, ' . count($new) . ' new Twitter handle' . ( (count($new) % 10 == 1) ? ' is' : 's are' ) . ' queued for addition to ' . implode(', ', $_groups) . ' groups.';
