@@ -232,7 +232,7 @@ class PeopleController extends Controller {
 
     }
 	
-	public function actionSuggestInternal($handle = '', $group = '') {
+	public function actionSuggestInternallll($handle = '', $group = '') {
 		
 		// turn lists into arrays
 		$handles = array_values(array_unique(preg_split("/\W/", $handle, -1, PREG_SPLIT_NO_EMPTY)));

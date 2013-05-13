@@ -12,7 +12,7 @@ $creds = json_decode($string, true);
 
 return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-	'name'=>'Ligo',
+	'name'=>'Twitter influence map',
 	'defaultController' => 'people',
 	
 	'import'=>array(
@@ -22,9 +22,6 @@ return array(
 		'ext.Codebird.CCodebird',
         'ext.recaptcha.CRecaptcha',
         'ext.yiimailer.YiiMailer',
-	),
-
-	'modules'=>array(
 	),
 
 	// application components

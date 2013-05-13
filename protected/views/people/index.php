@@ -9,7 +9,7 @@ $this->pageTitle=Yii::app()->name;
         <a class="brand" href="#" data-toggle="tooltip" data-placement="bottom" data-title="Loading..." data-trigger="manual"><?php echo Yii::app()->name; ?></a>
         <ul class="nav">
             <li class="dropdown" data-toggle="tooltip" data-placement="bottom" data-title="Data has been recorded" data-trigger="manual">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Suggest Twitter accounts  <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Suggest new accounts  <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li>
                         <form class="navbar-form" id="newhandles" action="<?php echo $this->createUrl('people/suggest'); ?>">
