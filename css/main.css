@@ -1,9 +1,6 @@
 #graph {
     overflow: hidden;
 }
-#newhandles {
-    padding: 10px;
-}
 #recaptcha-error {
     color: #FF0000;
 }
