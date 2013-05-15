@@ -69,8 +69,8 @@ return array(
 
     'params'=>array(
 		'adminEmail'=>'jura.khrapunov@undp.org',
-        'recaptcha_public_key' => '6LdZH8ESAAAAAO6O9yaiaNqy9h05OKQ_VnnX7qOB',
-        'recaptcha_private_key' => '6LdZH8ESAAAAAG57cm7ItKfVjVQgAzvcwlyCOLWo',
+        'recaptcha_public_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_public_key'],
+        'recaptcha_private_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_private_key'],
         'remoteip' => getenv('HTTP_X_FORWARDED_FOR'),
         'YiiMailer'=>array(
             'Host' => $creds['MAILGUN']['MAILGUN_SMTP_SERVER'],
