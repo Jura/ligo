@@ -6,16 +6,25 @@ class CCodebird extends CApplicationComponent {
 	
 	// codebird instance
 	protected static $_cb = NULL;
-	
-	// credentials
-	protected static $_config = array(
-			"consumerkey" => "PbU7bUAKJraOvlSf0ovQ",
-			"consumersecret" => "TiH2ZNZ7Sh52jb3lwHCdxAFBr7hxX55CNXC2wLF0",
-			"bearertoken" => "AAAAAAAAAAAAAAAAAAAAAAaTQAAAAAAArCRANEDm%2FAMXDj%2B%2F4ZWuHXXWdP0%3DDriwKbWjKjb0vUpnQsH5L1uczJRdgnxw1XJf2v4ZpE",
-			"appauth" => true, // flag shows whether to use Application authentication with Twitter API. Set to false if User auth should be used
-	);
-	
-	public function getCodebird() {
+
+    protected static $_auth = false;
+
+    public function __construct()
+    {
+        //initialize config
+        if(isset(Yii::app()->params['codebird'])) {
+            Codebird::setConsumerKey(Yii::app()->params['codebird']['consumerkey'], Yii::app()->params['codebird']['consumersecret']);
+            if (Yii::app()->params['codebird']['appauth']) {
+                Codebird::setBearerToken(Yii::app()->params['codebird']['bearertoken']);
+            }
+            self::$_cb = Codebird::getInstance();
+            self::$_auth = Yii::app()->params['codebird']['appauth'];
+        } else {
+            throw new CException('please set appropriate Codebird variables in config');
+        }
+    }
+
+    /*public function getCodebird() {
 		Yii::trace(get_class($this).'.getCodebird()','ext.codebird');
 		if (self::$_cb == NULL) {
 			Codebird::setConsumerKey(self::$_config["consumerkey"], self::$_config["consumersecret"]);
@@ -25,7 +34,7 @@ class CCodebird extends CApplicationComponent {
 			self::$_cb = Codebird::getInstance();
 		}
 		return self::$_cb;
-	}
+	}*/
 	
 	public function getMultipleUserInfo($ids) {
 		Yii::trace(get_class($this).'.getMultipleUserInfo()','ext.codebird');
@@ -34,7 +43,7 @@ class CCodebird extends CApplicationComponent {
 
         if (count($ids) > 0) {
 
-            $cb = self::getCodebird();
+            //$cb = self::getCodebird();
 
             $user_ids = implode(',', $ids);
 
@@ -48,7 +57,7 @@ class CCodebird extends CApplicationComponent {
                 $criteria['screen_name'] = $user_ids;
             }
 
-            $userinfo = $cb->users_lookup($criteria, self::$_config["appauth"]);
+            $userinfo = self::$_cb->users_lookup($criteria, self::$_auth);
 
             if ($userinfo->httpstatus == 200) {
 
@@ -81,14 +90,14 @@ class CCodebird extends CApplicationComponent {
 	
 		$result = array('handle' => $handle, 'success' => false, 'message' => 'Unknown error', 'userinfo' => array());
 		
-		$cb = self::getCodebird();
+		//$cb = self::getCodebird();
 		
-		$userinfo = $cb->users_show(array("screen_name" => $handle, "include_entities" => false), self::$_config["appauth"]);
+		$userinfo = self::$_cb->users_show(array("screen_name" => $handle, "include_entities" => false), self::$_auth);
 	
 		if ($userinfo->httpstatus == 200) {
 			
 			if ($findFriends) {
-				$friends = $cb->friends_ids(array("user_id" => $userinfo->id), self::$_config["appauth"]);
+				$friends = self::$_cb->friends_ids(array("user_id" => $userinfo->id), self::$_auth);
 
                 if ($friends->httpstatus == 200) {
 		
@@ -99,7 +108,7 @@ class CCodebird extends CApplicationComponent {
 
                     while ($friends->httpstatus == 200 && $friends->next_cursor > 0) {
 
-						$friends = $cb->friends_ids(array("user_id" => $userinfo->id, "cursor" => $friends->next_cursor_str), self::$_config["appauth"]);
+						$friends = self::$_cb->friends_ids(array("user_id" => $userinfo->id, "cursor" => $friends->next_cursor_str), self::$_auth);
 
                         if ($friends->httpstatus == 200) {
 							

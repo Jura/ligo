@@ -72,6 +72,12 @@ return array(
         'recaptcha_public_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_public_key'],
         'recaptcha_private_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_private_key'],
         'remoteip' => getenv('HTTP_X_FORWARDED_FOR'),
+        'codebird' => array(
+            'consumerkey' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumerkey'],
+            'consumersecret' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumersecret'],
+            'bearertoken' => $creds['CONFIG']['CONFIG_VARS']['codebird_bearertoken'],
+            'appauth' => true,
+        ),
         'YiiMailer'=>array(
             'Host' => $creds['MAILGUN']['MAILGUN_SMTP_SERVER'],
             'Username' => $creds['MAILGUN']['MAILGUN_SMTP_LOGIN'],
