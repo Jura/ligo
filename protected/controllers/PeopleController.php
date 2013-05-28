@@ -231,8 +231,9 @@ class PeopleController extends Controller {
         $this->renderPartial('//layouts/json', compact('content'));
 
     }
-	
-	public function actionSuggestInternallll($handle = '', $group = '') {
+
+
+	/*public function actionSuggestInternallll($handle = '', $group = '') {
 		
 		// turn lists into arrays
 		$handles = array_values(array_unique(preg_split("/\W/", $handle, -1, PREG_SPLIT_NO_EMPTY)));
@@ -295,9 +296,9 @@ class PeopleController extends Controller {
 		
 		$this->renderPartial('//layouts/json', array('content' => $messages));		
 		
-	}
+	}*/
 	
-	public function actionParseBareHandlers() {
+	/*public function actionParseBareHandlers() {
 		
 		$max_exec = ((int) ini_get('max_execution_time') - 10) * 1000; // have a bit of reserve time to finish the logging 
 		
@@ -467,7 +468,7 @@ class PeopleController extends Controller {
 			
 		}
 		
-	}
+	}*/
 
     /*public function actionMapFriendsTest(){
 

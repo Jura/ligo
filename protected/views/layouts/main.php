@@ -7,13 +7,7 @@ Yii::app()->clientScript->registerLinkTag('shortcut icon', 'image/x-icon', Yii::
 
     ->registerMetaTag('width=device-width, initial-scale=1.0', 'viewport')
 
-    ->registerCoreScript('jquery')->registerPackage('d3')->registerPackage('bootstrap')
-
-    ->registerScriptFile(Yii::app()->request->baseUrl.'/js/ligo.js')
-
-    ->registerCssFile(Yii::app()->request->baseUrl.'/css/main.css')
-
-    ->registerScriptFile(Yii::app()->request->baseUrl.'/js/main.js');
+    ->registerCoreScript('jquery')->registerPackage('bootstrap');
 
 if (!YII_DEBUG) {
 $ga = <<<'EOT'
@@ -31,9 +25,8 @@ $ga = <<<'EOT'
 
 EOT;
 
-Yii::app()->clientScript->registerScript('ga', $ga);
+    Yii::app()->clientScript->registerScript('ga', $ga);
 }
-
 
 ?>
 <!DOCTYPE html>

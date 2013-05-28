@@ -9,19 +9,67 @@ class CCodebird extends CApplicationComponent {
 
     protected static $_auth = false;
 
-    public function __construct()
-    {
+    public function __construct() {
+
+        $appauth = ( func_num_args() > 0 ) ? func_get_arg(0) : Yii::app()->params['codebird']['appauth'];
+
         //initialize config
         if(isset(Yii::app()->params['codebird'])) {
             Codebird::setConsumerKey(Yii::app()->params['codebird']['consumerkey'], Yii::app()->params['codebird']['consumersecret']);
-            if (Yii::app()->params['codebird']['appauth']) {
+            if ($appauth) {
                 Codebird::setBearerToken(Yii::app()->params['codebird']['bearertoken']);
             }
             self::$_cb = Codebird::getInstance();
-            self::$_auth = Yii::app()->params['codebird']['appauth'];
+            self::$_auth = $appauth;
         } else {
             throw new CException('please set appropriate Codebird variables in config');
         }
+    }
+
+    public function verifyUser($oauth_token, $oauth_token_secret, $oauth_verifier) {
+
+        Yii::trace(get_class($this).'.verifyUser()','ext.codebird');
+
+        self::$_cb->setToken($oauth_token, $oauth_token_secret);
+
+        $reply = self::$_cb->oauth_accessToken(array('oauth_verifier' => $oauth_verifier));
+
+        if ($reply->httpstatus == 200) {
+
+            return $reply;
+
+        } else {
+
+            throw new CException('Twitter API error, status: ' . $reply->httpstatus);
+
+        }
+
+    }
+
+    public function requestToken() {
+
+        Yii::trace(get_class($this).'.requestToken()','ext.codebird');
+
+        $reply = self::$_cb->oauth_requestToken( array('oauth_callback' => Yii::app()->params['codebird']['oauth_callback']), self::$_auth);
+
+        if ($reply->httpstatus == 200 && $reply->oauth_callback_confirmed == true) {
+
+            self::$_cb->setToken($reply->oauth_token, $reply->oauth_token_secret);
+
+            $result = array(
+                'auth_url' => self::$_cb->oauth_authorize(),
+                'oauth_token' => $reply->oauth_token,
+                'oauth_token_secret' => $reply->oauth_token_secret,
+            );
+
+        } else {
+
+            throw new CException('Twitter API error, status: ' . $reply->httpstatus);
+
+        }
+
+        return $result;
+
     }
 
     /*public function getCodebird() {

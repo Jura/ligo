@@ -22,6 +22,7 @@ return array(
 		'ext.Codebird.CCodebird',
         'ext.recaptcha.CRecaptcha',
         'ext.yiimailer.YiiMailer',
+        'application.widgets.YiiBootstrap.*',
 	),
 
 	// application components
@@ -69,12 +70,14 @@ return array(
 
     'params'=>array(
 		'adminEmail'=>'jura.khrapunov@undp.org',
+        'admin_twitter_handle' => array('jurakhrapunov'),
         'recaptcha_public_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_public_key'],
         'recaptcha_private_key' => $creds['CONFIG']['CONFIG_VARS']['recaptcha_private_key'],
         'remoteip' => getenv('HTTP_X_FORWARDED_FOR'),
         'codebird' => array(
             'consumerkey' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumerkey'],
             'consumersecret' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumersecret'],
+            'oauth_callback' => 'http://ligo.cloudcontrolled.com/people/login',
             'bearertoken' => $creds['CONFIG']['CONFIG_VARS']['codebird_bearertoken'],
             'appauth' => true,
         ),

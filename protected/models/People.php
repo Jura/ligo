@@ -35,7 +35,7 @@ class People extends EMongoDocument {
 	
 	public function getTopListForGroup($group) {
 		$col = self::model()->getCollection();
-		$reduce = 'function (obj, prev) { obj.userinfo.friends_list.forEach( function(e) { prev.friends[e] = prev.friends[e] || 0; prev.friends[e]++; });}';
+		$reduce = 'function (obj, prev) { if(obj.userinfo){obj.userinfo.friends_list.forEach( function(e) { prev.friends[e] = prev.friends[e] || 0; prev.friends[e]++; });}}';
 		$criteria = array(
 				'condition' => array(
 						'groups' => $group
@@ -65,7 +65,7 @@ class People extends EMongoDocument {
     public function getPopulatedGroups($threshold=2) {
 
         $col = self::model()->getCollection();
-        $reduce = 'function (obj, prev) { obj.groups.forEach( function(e) { prev.groups[e] = prev.groups[e] || 0; prev.groups[e]++; });}';
+        $reduce = 'function (obj, prev) { if(obj.groups){ obj.groups.forEach( function(e) { prev.groups[e] = prev.groups[e] || 0; prev.groups[e]++; }); } }';
         $result = $col->group(array(), array('groups' => array()), $reduce);
         ksort($result['retval'][0]['groups']);
         return $result['retval'][0]['groups'];

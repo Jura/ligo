@@ -109,9 +109,14 @@ $script = <<<EOT
 
 EOT;
 
-Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl.'/css/bootstrap-tag.css')
+Yii::app()->clientScript
+    ->registerPackage('d3')
+    ->registerScriptFile(Yii::app()->request->baseUrl.'/js/ligo.js')
+    ->registerCssFile(Yii::app()->request->baseUrl.'/css/bootstrap-tag.css')
     ->registerScriptFile(Yii::app()->request->baseUrl.'/js/bootstrap-tag.js')
     ->registerScriptFile('https://www.google.com/recaptcha/api/challenge?k=' . Yii::app()->params['recaptcha_public_key'])
+    ->registerCssFile(Yii::app()->request->baseUrl.'/css/main.css')
+    ->registerScriptFile(Yii::app()->request->baseUrl.'/js/main.js')
     ->registerScript('ligoinit', $script, CClientScript::POS_READY);
 
 ?>
