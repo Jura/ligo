@@ -39,3 +39,6 @@
 .stats-handles-container {
     margin-bottom: 5px;
 }
+.stats-group-handle {
+    background: rgba(255,0,0,0.7);
+}

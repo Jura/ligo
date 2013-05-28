@@ -190,8 +190,8 @@
                         $($gallery).append($div);
                     }
                 }
-
-                $div.find('ul').append('<li><a href="http://twitter.com/' + ligo.data.nodes[i].handle + '" title="@' + ligo.data.nodes[i].handle + '" class="thumbnail"><img src="' + (ligo.data.nodes[i].image || ligo.default_image) + '" alt="@' + ligo.data.nodes[i].handle + '"></a>');
+                var _class = (ligo.data.nodes[i].group) ? ' stats-group-handle' : '';
+                $div.find('ul').append('<li><a href="http://twitter.com/' + ligo.data.nodes[i].handle + '" title="@' + ligo.data.nodes[i].handle + '" class="thumbnail' + _class + '"><img src="' + (ligo.data.nodes[i].image || ligo.default_image) + '" alt="@' + ligo.data.nodes[i].handle + '"></a>');
             }
         }
 
