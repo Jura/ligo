@@ -21,17 +21,27 @@ class PeopleController extends Controller {
 		
 		$nodes = array();
 		$links = array();
-		
-		$criteria = new EMongoCriteria;
-		$criteria->groups('==', new MongoRegex('/^' . $group . '$/i'))->select(array('twitter_id', 'handle', 'groups', 'userinfo.friends_list', 'userinfo.profile_image_url_https'));
-		$handles = People::model()->findAll($criteria);
-		
+
+        $params = array(
+            'conditions' => array(
+                'groups' => array('equals' => new MongoRegex('/^' . $group . '$/i')),
+                'userinfo' => array('exists'),
+            ),
+        );
+
+        $criteria = new EMongoCriteria($params);
+		//$criteria->groups = ;
+        //$criteria->userinfo('exists');
+        $handles = People::model()->findAll($criteria);
+
 		$track = array();
 
 		// combine all friends together
 		$allfriends = array();
 		foreach ($handles as $handle) {
-			$allfriends = array_merge($allfriends, $handle->userinfo['friends_list']);
+            //if ($handle->userinfo['friends_list'] && is_array($handle->userinfo['friends_list'])) {
+                $allfriends = array_merge($allfriends, $handle->userinfo['friends_list']);
+            //}
 		}
 
         // create initial popularity rating
