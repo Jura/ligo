@@ -54,16 +54,24 @@ class SandboxController extends Controller
 
             $g = array_values(array_unique(preg_split("/\W/", $groups, -1, PREG_SPLIT_NO_EMPTY)));
 
-            $doc = Sandbox::model()->findByPk(new MongoID($id));
+            $doc = $this->loadModel($id);
 
             if ($doc->count() > 0) {
 
                 // check if the handle is already in database (case-insensitive)
-                $criteria = new EMongoCriteria;
-                $criteria->handle = new MongoRegex('/^' . $doc->handle . '$/i');
+                $criteria = new EMongoCriteria(
+                    array(
+                        'conditions' => array(
+                            'handle' => array(
+                                'equals' => new MongoRegex('/^' . $doc->handle . '$/i')
+                            )
+                        )
+                    )
+                );
+
                 $people = People::model()->find($criteria);
 
-                if ($people->count() > 0 && isset($people->userinfo) && isset($people->userinfo['friends_list']) && count($people->userinfo['friends_list']) > 0) {
+                if ($people !== NULL && $people->count() > 0 && isset($people->userinfo) && isset($people->userinfo['friends_list']) && count($people->userinfo['friends_list']) > 0) {
 
                     $newgroups = array_diff($g, $people->groups);
 
@@ -83,9 +91,10 @@ class SandboxController extends Controller
                 } else {
                     $codebird = new CCodebird;
                     $result = $codebird->getHandleInfo($doc->handle);
+
                     if ($result['success']) {
 
-                        if ($people->count() < 1) {
+                        if ($people === NULL || $people->count() < 1) {
                             $people = new People;
                             $people->twitter_id = $result['userinfo']->id;
                         }
@@ -101,6 +110,7 @@ class SandboxController extends Controller
                         if (isset($result['userinfo']->friends_list) && count($result['userinfo']->friends_list) > 0) {
                             $people->insertBareHandles($result['userinfo']->friends_list);
                         }
+
                     } else {
 
                         throw new CHttpException(503,$result['message']);
@@ -242,18 +252,18 @@ class SandboxController extends Controller
 
         } else {
 
-            if(Yii::app()->request->isPostRequest)
-            {
+            //if(Yii::app()->request->isPostRequest)
+            //{
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
                 //if(!isset($_GET['ajax']))
                 //    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            }
-            else {
-                throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
-            }
+           // }
+            //else {
+            //    throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+           // }
 
         }
 	}
@@ -290,13 +300,13 @@ class SandboxController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	/*public function loadModel($id)
+	protected function loadModel($id)
 	{
 		$model=Sandbox::model()->findByPk(new MongoId($id));
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
-	}*/
+	}
 
 	/**
 	 * Performs the AJAX validation.

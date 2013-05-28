@@ -77,7 +77,7 @@ return array(
         'codebird' => array(
             'consumerkey' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumerkey'],
             'consumersecret' => $creds['CONFIG']['CONFIG_VARS']['codebird_consumersecret'],
-            'oauth_callback' => 'http://ligo.cloudcontrolled.com/people/login',
+            'oauth_callback' => 'http://ligo.cloudcontrolled.com/sandbox/login',
             'bearertoken' => $creds['CONFIG']['CONFIG_VARS']['codebird_bearertoken'],
             'appauth' => true,
         ),

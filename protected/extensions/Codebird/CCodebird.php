@@ -11,7 +11,7 @@ class CCodebird extends CApplicationComponent {
 
     public function __construct() {
 
-        $appauth = ( func_num_args() > 0 ) ? func_get_arg(0) : Yii::app()->params['codebird']['appauth'];
+        $appauth = ( func_num_args() > 0 ) ? (bool)func_get_arg(0) : Yii::app()->params['codebird']['appauth'];
 
         //initialize config
         if(isset(Yii::app()->params['codebird'])) {
@@ -143,7 +143,7 @@ class CCodebird extends CApplicationComponent {
 		$userinfo = self::$_cb->users_show(array("screen_name" => $handle, "include_entities" => false), self::$_auth);
 	
 		if ($userinfo->httpstatus == 200) {
-			
+
 			if ($findFriends) {
 				$friends = self::$_cb->friends_ids(array("user_id" => $userinfo->id), self::$_auth);
 
@@ -174,8 +174,12 @@ class CCodebird extends CApplicationComponent {
 					}
 
 		
-				} else {
-		
+				} else if($friends->httpstatus == 401) {
+
+                    $result['message'] = 'Codebird can\'t process the friends_ids request: ' . $friends->httpstatus . ' - ' . $friends->error;
+
+                } else {
+
 					$result['message'] = 'Codebird can\'t process the friends_ids request: ' . $friends->errors[0]->code . ' - ' . $friends->errors[0]->message;
 		
 				}

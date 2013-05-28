@@ -48,7 +48,7 @@ if (isset(Yii::app()->session['oauth_verified'])) {
                             'label' => '<i class="icon-remove"></i>',
                             //'url' => '"#".$data->_id',
                             'options' => array(
-                                'class' => 'btn btn-danger sandbox-action',
+                                'class' => 'btn btn-danger',
                                 'title' => 'Delete',
                             ),
                         ),
@@ -82,8 +82,8 @@ $(document).on('click', '.sandbox-action', function(e) {
     if ($.trim(groups) != '') {
         $.ajax(action, {
             data: {groups: groups},
-            success: function(data, status) {tr.remove();},
-            error: function() {window.location.reload(true);} // this should be called if access is denied
+            success: function() {tr.remove();},
+            error: function() { alert(arguments[0].responseText);}  // if(confirm(arguments[0].responseText + '. Reload?')){window.location.reload(true);}} // this should be called if access is denied
         });
     } else {
         alert('Please indicate at least one group');
