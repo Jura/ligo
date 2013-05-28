@@ -30,12 +30,14 @@ class TaskController extends Controller {
 
                 foreach (self::$registered_tasks as $rt) {
 
-                    if (is_callable($rt)) {
+                    if (is_callable(array($this, $rt))) {
 
-                        $result = call_user_func($rt, $task->start);
+                        $result = call_user_func(array($this, $rt), $task->start);
                         $task->status = $result->status;
                         $task->log = array_merge($task->log, $result->log);
 
+                    } else {
+                        die($rt);
                     }
 
                 }
@@ -77,7 +79,7 @@ class TaskController extends Controller {
     }
 
     // tasks
-    protected function parseBareHandlers($start) {
+    protected function parseBareHandles($start) {
 
         $task = new Task;
         $task->start = $start;
@@ -91,7 +93,7 @@ class TaskController extends Controller {
         );
         $criteria = new EMongoCriteria($params);
         $handles = People::model()->findAll($criteria);
-
+//var_dump($handles);die();
         if ($handles->count() > 0) {
 
             $user_id = array();
